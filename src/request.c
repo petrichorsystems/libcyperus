@@ -83,12 +83,16 @@ void _request_registry_register(request_t *request) {
   unsigned int id;
   pthread_mutex_lock(request->mutex);
   id = global_registry->count;
-  if(global_registry->count == REQUEST_REGISTRY_MAX_ENTRIES)
+  if(global_registry->count >= REQUEST_REGISTRY_MAX_ENTRIES - 1)
     global_registry->count = 0;
   else
     global_registry->count++;
   printf("about to.. '%d' \n", id);
-  global_registry->entries[id] = *request;
+
+  global_registry->entries[id]->id = id;
+  request->id = id;
+  memcpy(&(global_registry->entries[id][0]), request, sizeof(request_t));
+  
   pthread_mutex_unlock(request->mutex);
 } /* _request_registry_get_id */
 
@@ -96,7 +100,12 @@ extern void request_registry_init() {
   printf("request.c::request_registry_init()\n");
   global_registry = malloc(sizeof(request_registry_t));
   global_registry->count = 0;
-  global_registry->entries = malloc(sizeof(request_registry_t) * REQUEST_REGISTRY_MAX_ENTRIES);
+  global_registry->entries = malloc(sizeof(request_t*) * REQUEST_REGISTRY_MAX_ENTRIES);
+  for(int i=0; i < REQUEST_REGISTRY_MAX_ENTRIES; i++) {
+    global_registry->entries[i] = malloc(sizeof(request_t));
+    global_registry->entries[i]->response = (response_t *)malloc(sizeof(response_t));
+    global_registry->entries[i]->response->path = malloc(1);;
+  }
 } /* _request_registry_init */
 
 extern request_t* request_register() {
@@ -116,8 +125,8 @@ extern void request_wait(request_t *request) {
 
 extern void request_cleanup(request_t *request) {
   printf("request.c::request_cleanup()\n");  
-  pthread_mutex_lock(request->mutex);  
-  free(global_registry->entries[request->id].response);
+  pthread_mutex_lock(request->mutex);
+  free(request);
   pthread_mutex_unlock(request->mutex);
 } /* _request_cleanup */
 

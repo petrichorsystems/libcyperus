@@ -28,7 +28,7 @@ Copyright 2021 murray foster */
 #include <unistd.h>
 #include <uuid/uuid.h>
 
-#define REQUEST_REGISTRY_MAX_ENTRIES 65536
+#define REQUEST_REGISTRY_MAX_ENTRIES 1
 
 typedef struct response_type {
   char *path;
@@ -45,14 +45,13 @@ typedef struct request_type {
   unsigned long *hash;
   pthread_mutex_t *mutex;
   pthread_cond_t *cond;
-
   response_t *response;
 } request_t;
 
 typedef struct request_registry_type {
   pthread_mutex_t mutex;  
   unsigned int count;
-  request_t *entries;
+  request_t **entries;
 } request_registry_t;
 
 extern request_registry_t *global_registry;

@@ -42,25 +42,27 @@ int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
   for(i=0; i<REQUEST_REGISTRY_MAX_ENTRIES; i++) {
     printf("i: %d\n", i);
     printf("argv[0]: %s\n", (char *)argv[0]);
-    printf("global_registry->entries[i]->request_id: %s\n", global_registry->entries[i].request_id);
-    printf("global_registry->entries[i]->hash: %lu\n", *global_registry->entries[i].hash);
+    printf("global_registry->entries[i]->request_id: %s\n", global_registry->entries[i]->request_id);
+    printf("global_registry->entries[i]->hash: %lu\n", *global_registry->entries[i]->hash);
     printf("hash: %lu\n", hash);
-    if(*(global_registry->entries[i].hash) == hash) {
+    if(*(global_registry->entries[i]->hash) == hash) {
+
       printf("matched\n");
-      global_registry->entries[i].response = malloc(sizeof(response_t));
-      global_registry->entries[i].response->path = malloc(sizeof(char) * (strlen(path) + 4));
-      printf("strlen(path): %d\n", (int)strlen(path));
-      snprintf(global_registry->entries[i].response->path,
-               strlen(path)+1,
-               "%s",
-               path);
-      printf("OH YEAH: %s\n", global_registry->entries[i].response->path);
-      global_registry->entries[i].response->argv = argv;
-      global_registry->entries[i].response->argc = argc;
-      global_registry->entries[i].response->data = data;
-      global_registry->entries[i].response->user_data = user_data;
-      response = global_registry->entries[i].response;
-      pthread_cond_signal(global_registry->entries[i].cond);
+      
+      global_registry->entries[i]->response = realloc(global_registry->entries[i]->response, sizeof(response_t));
+      printf("realloc'd\n");
+
+      global_registry->entries[i]->response->path = (char *)path;
+      global_registry->entries[i]->response->argv = argv;
+      global_registry->entries[i]->response->argc = argc;
+      global_registry->entries[i]->response->data = data;
+      global_registry->entries[i]->response->user_data = user_data;
+
+      *(global_registry->entries[i]->hash) = 0;
+      
+      response = global_registry->entries[i]->response;      
+      pthread_cond_signal(global_registry->entries[i]->cond);
+      pthread_mutex_unlock(global_registry->entries[i]->mutex); 
       break;
     }
   }
@@ -87,14 +89,21 @@ extern void libcyperus_list_mains() {
   printf("libcyperus.c::libcyperus_list_mains(), request->requst_id: %s\n", request->request_id);
   lo_send(lo_addr_send, "/cyperus/list/main", "s", request->request_id);
 
+printf("hi, %d\n", request->id);
+  
+  
   request_wait(request);
 
   printf("hi, %d\n", request->id);
   
-  printf("libcyperus.c::libcyperus_list_mains(), request->response->path: %s\n", global_registry->entries[request->id].response->path);
-  printf("libcyperus.c::libcyperus_list_mains(), request->response->argv[2]: %s\n", (char *)global_registry->entries[request->id].response->argv[2]);
+  printf("libcyperus.c::libcyperus_list_mains(), request->response->path: %s\n", global_registry->entries[request->id]->response->path);
+  printf("libcyperus.c::libcyperus_list_mains(), request->response->argv[2]: %s\n", (char *)global_registry->entries[request->id]->response->argv[2]);
+  printf("libcyperus.c::libcyperus_list_mains(), request->response->argc: %d\n", global_registry->entries[request->id]->response->argc);
   
-  _parse_cyperus_mains((char*)&(request->response->argv[0]));
+  
+  //_parse_cyperus_mains((char*)&(request->response->argv[0]));
+
+  printf("ABOUT TO CLEANUP\n");
   request_cleanup(request);
 } /* libcyperus_list_mains */
 
