@@ -1,4 +1,4 @@
-/* libcyperus.h
+/* request.h
 This file is a part of 'libcyperus'
 This program is free software: you can redistribute it and/or modify
 hit under the terms of the GNU General Public License as published by
@@ -61,6 +61,8 @@ extern unsigned long request_hash_string(unsigned char *str);
 extern void request_registry_init();
 extern request_t* request_register();
 extern void request_wait(request_t *request);
+
 extern void request_cleanup(request_t *request);
+// extern void request_registry_cleanup(request_registry_t registry);
 
 #endif
