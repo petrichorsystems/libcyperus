@@ -31,8 +31,8 @@ Copyright 2021 murray foster */
 #define REQUEST_REGISTRY_MAX_ENTRIES 65536
 
 typedef struct response_type {
-  const char *path;
-  const char *types;
+  char *path;
+  char *types;
   lo_arg **argv;
   int argc;
   void *data;

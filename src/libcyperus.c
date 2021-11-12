@@ -98,8 +98,13 @@ int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
     if(*(global_registry->entries[i].hash) == hash) {
       printf("matched\n");
       global_registry->entries[i].response = malloc(sizeof(response_t));
-      global_registry->entries[i].response->path = path;
-      global_registry->entries[i].response->types = types;
+      global_registry->entries[i].response->path = malloc(sizeof(char) * (strlen(path) + 4));
+      printf("strlen(path): %d\n", (int)strlen(path));
+      snprintf(global_registry->entries[i].response->path,
+               strlen(path)+1,
+               "%s",
+               path);
+      printf("OH YEAH: %s\n", global_registry->entries[i].response->path);
       global_registry->entries[i].response->argv = argv;
       global_registry->entries[i].response->argc = argc;
       global_registry->entries[i].response->data = data;
@@ -156,6 +161,10 @@ extern void libcyperus_list_mains() {
 
   _request_wait(request);
 
+  printf("hi, %d\n", request->id);
+  
+  printf("libcyperus.c::libcyperus_list_mains(), request->response->path: %s\n", global_registry->entries[request->id].response->path);
+  
   _parse_cyperus_mains((char*)&(request->response->argv[0]));
   _request_cleanup(request);
 } /* libcyperus_list_mains */
