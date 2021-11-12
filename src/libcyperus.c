@@ -23,11 +23,15 @@ request_registry_t global_registry;
 lo_address lo_addr_send;
 
 request_t _request_init(char *request_id) {
-  request_t request;  
-  request.request_id = malloc(strlen(request_id)+1);
-  snprintf(request.request_id, strlen(request_id), "%s", request_id);
- 
-  request.hash = hash_string((unsigned char*)request_id);
+  request_t request;
+  printf("strlen(rquest_id): %d\n", (int)strlen(request_id));
+  request.request_id = (char *)malloc(sizeof(char) * (strlen(request_id)+1));
+  snprintf(request.request_id, strlen(request_id)+1, "%s", request_id);
+  
+  request.hash = hash_string((unsigned char*)request.request_id);
+
+  printf("libcyperus.c::_request_init(), %s\n", request_id);
+  printf("libcyperus.c::_request_init(), %lu\n", request.hash);
   
   if (pthread_mutex_init(&request.mutex, NULL) != 0) {
     printf("libcyperus.c::_thread_osc_message_receive(), mutex init failed\n");
@@ -74,7 +78,7 @@ int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
     printf("\n");
   }
   /* communicate osc message response and unblock corresponding calling thread */
-  unsigned long hash = hash_string((unsigned char*)(&argv[0]));
+  unsigned long hash = hash_string((unsigned char*)(argv[0]));
 
   printf("about to interate over entries\n");
   for(i=0; i<REQUEST_REGISTRY_MAX_ENTRIES; i++) {
@@ -82,7 +86,6 @@ int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
     printf("argv[0]: %s\n", (char *)argv[0]);
     printf("global_registry.entries[i].hash: %lu\n", global_registry.entries[i].hash);
     printf("hash: %lu\n", hash);
-    break;
     if(global_registry.entries[i].hash == hash) {
       response = malloc(sizeof(response_t));
       response->path = path;
@@ -135,7 +138,8 @@ void _parse_cyperus_mains(char *incoming_message) {
 
 extern void libcyperus_list_mains() {
   request_t request = _request_register(&global_registry);
-  lo_send(lo_addr_send, "/cyperus/list/main", NULL);
+  printf("libcyperus.c::libcyperus_list_mains(), request.requst_id: %s\n", request.request_id);
+  lo_send(lo_addr_send, "/cyperus/list/main", "s", request.request_id);
   _request_wait(request);
   _parse_cyperus_mains((char*)&(request.response->argv[0]));
   _request_cleanup(global_registry, request);
