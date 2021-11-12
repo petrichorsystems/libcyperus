@@ -28,7 +28,7 @@ Copyright 2021 murray foster */
 #include <unistd.h>
 #include <uuid/uuid.h>
 
-#define REQUEST_REGISTRY_MAX_ENTRIES 1
+#define REQUEST_REGISTRY_MAX_ENTRIES 100
 
 typedef struct response_type {
   char *path;
@@ -48,6 +48,9 @@ typedef struct request_type {
   response_t *response;
 } request_t;
 
+/* currently using an array for storage as a naive accommodation
+   for multithreaded applications. should be switched out for
+   something similarly fast but more durable*/
 typedef struct request_registry_type {
   pthread_mutex_t mutex;  
   unsigned int count;

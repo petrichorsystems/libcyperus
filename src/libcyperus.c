@@ -29,22 +29,24 @@ int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
   printf("libcyperus.c::_osc_handler()\n");
   response_t *response = NULL;
   int i;
-  printf("path: <%s>\n", path);
-  for (i = 0; i < argc; i++) {
-    printf("arg %d '%c' ", i, types[i]);
-    lo_arg_pp((lo_type)types[i], argv[i]);
-    printf("\n");
-  }
+
+  /* printf("path: <%s>\n", path); */
+  /* for (i = 0; i < argc; i++) { */
+  /*   printf("arg %d '%c' ", i, types[i]); */
+  /*   lo_arg_pp((lo_type)types[i], argv[i]); */
+  /*   printf("\n"); */
+  /* } */
+
   /* communicate osc message response and unblock corresponding calling thread */
   unsigned long hash = request_hash_string((unsigned char*)(argv[0]));
 
   printf("about to interate over entries\n");
   for(i=0; i<REQUEST_REGISTRY_MAX_ENTRIES; i++) {
-    printf("i: %d\n", i);
-    printf("argv[0]: %s\n", (char *)argv[0]);
-    printf("global_registry->entries[i]->request_id: %s\n", global_registry->entries[i]->request_id);
-    printf("global_registry->entries[i]->hash: %lu\n", *global_registry->entries[i]->hash);
-    printf("hash: %lu\n", hash);
+    /* printf("i: %d\n", i); */
+    /* printf("argv[0]: %s\n", (char *)argv[0]); */
+    /* printf("global_registry->entries[i]->request_id: %s\n", global_registry->entries[i]->request_id); */
+    /* printf("global_registry->entries[i]->hash: %lu\n", *global_registry->entries[i]->hash); */
+    /* printf("hash: %lu\n", hash); */
     if(*(global_registry->entries[i]->hash) == hash) {
 
       printf("matched\n");
@@ -65,16 +67,12 @@ int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
       pthread_mutex_unlock(global_registry->entries[i]->mutex); 
       break;
     }
-  }
-  printf("done iterating\n");
-  
+  } 
   if(response == NULL) {
     printf("libcyperus.c::_request_registry_register(), incoming message did not match request\n");
     return 1;
   }
-
-  printf("_handler_osc_message returning\n");
-  
+ 
   return 0;
 } /* _handler_osc_message */
 
@@ -88,22 +86,15 @@ extern void libcyperus_list_mains() {
   request_t *request = request_register();
   printf("libcyperus.c::libcyperus_list_mains(), request->requst_id: %s\n", request->request_id);
   lo_send(lo_addr_send, "/cyperus/list/main", "s", request->request_id);
-
-printf("hi, %d\n", request->id);
-  
   
   request_wait(request);
 
-  printf("hi, %d\n", request->id);
+  /* printf("hi, %d\n", request->id); */
   
-  printf("libcyperus.c::libcyperus_list_mains(), request->response->path: %s\n", global_registry->entries[request->id]->response->path);
-  printf("libcyperus.c::libcyperus_list_mains(), request->response->argv[2]: %s\n", (char *)global_registry->entries[request->id]->response->argv[2]);
-  printf("libcyperus.c::libcyperus_list_mains(), request->response->argc: %d\n", global_registry->entries[request->id]->response->argc);
-  
-  
-  //_parse_cyperus_mains((char*)&(request->response->argv[0]));
+  /* printf("libcyperus.c::libcyperus_list_mains(), request->response->path: %s\n", global_registry->entries[request->id]->response->path); */
+  /* printf("libcyperus.c::libcyperus_list_mains(), request->response->argv[2]: %s\n", (char *)global_registry->entries[request->id]->response->argv[2]); */
+  /* printf("libcyperus.c::libcyperus_list_mains(), request->response->argc: %d\n", global_registry->entries[request->id]->response->argc); */
 
-  printf("ABOUT TO CLEANUP\n");
   request_cleanup(request);
 } /* libcyperus_list_mains */
 
