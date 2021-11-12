@@ -42,9 +42,9 @@ typedef struct response_type {
 typedef struct request_type {
   unsigned int id;
   char *request_id;
-  unsigned long hash;
-  pthread_mutex_t mutex;
-  pthread_cond_t cond;
+  unsigned long *hash;
+  pthread_mutex_t *mutex;
+  pthread_cond_t *cond;
 
   response_t *response;
 } request_t;
