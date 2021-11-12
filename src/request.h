@@ -17,8 +17,8 @@ https://github.com/petrichorsystems/cyperus
 
 Copyright 2021 murray foster */
 
-#ifndef LIBCYPERUS_H_
-#define LIBCYPERUS_H_
+#ifndef REQUEST_H_
+#define REQUEST_H_
 #include <stdio.h> //printf
 #include <string.h> //memset
 #include <stdlib.h> //exit(0);
@@ -26,11 +26,41 @@ Copyright 2021 murray foster */
 #include <pthread.h>
 #include <signal.h>
 #include <unistd.h>
+#include <uuid/uuid.h>
 
-#include "request.h"
+#define REQUEST_REGISTRY_MAX_ENTRIES 65536
 
-request_registry_t *global_registry;
+typedef struct response_type {
+  char *path;
+  char *types;
+  lo_arg **argv;
+  int argc;
+  void *data;
+  void *user_data;
+} response_t;
 
-extern int libcyperus_setup(char *osc_port_in, char *osc_port_out);
-extern void libcyperus_list_mains();
+typedef struct request_type {
+  unsigned int id;
+  char *request_id;
+  unsigned long *hash;
+  pthread_mutex_t *mutex;
+  pthread_cond_t *cond;
+
+  response_t *response;
+} request_t;
+
+typedef struct request_registry_type {
+  pthread_mutex_t mutex;  
+  unsigned int count;
+  request_t *entries;
+} request_registry_t;
+
+extern request_registry_t *global_registry;
+
+extern unsigned long request_hash_string(unsigned char *str);
+extern void request_registry_init();
+extern request_t* request_register();
+extern void request_wait(request_t *request);
+extern void request_cleanup(request_t *request);
+
 #endif
