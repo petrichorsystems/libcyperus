@@ -2,6 +2,16 @@
 
 #include "../libcyperus.h"
 
+void test_libcyperus_add_bus() {
+  printf("test.c::test_libcyperus_add_bus()\n");
+
+  char *bus_id;
+  libcyperus_add_bus("/", "main0", "in", "out", &bus_id);
+
+  printf("test.c::test_libcyperus_add_bus(), bus_id: %s\n", bus_id);
+  
+} /* test_libcyperus_list_mains */
+
 void test_libcyperus_list_mains() {
   printf("test.c::test_libcyperus_list_mains()\n");
 
@@ -12,13 +22,6 @@ void test_libcyperus_list_mains() {
   
   printf("num_ins: %d\n", num_ins);
   printf("num_outs: %d\n", num_outs);
-
-  for(i=0; i<num_ins; i++) {
-    printf("%s\n", ins[i]);
-  }  
-  for(int i=0; i<num_outs; i++) {
-    printf("%s\n", outs[i]);
-  }  
 } /* test_libcyperus_list_mains */
 
 int main(void) {
@@ -27,6 +30,5 @@ int main(void) {
   printf("hello world\n");
 
   test_libcyperus_list_mains();
-  
-
+  test_libcyperus_add_bus();
 }
