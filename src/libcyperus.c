@@ -19,9 +19,6 @@ Copyright 2021 murray foster */
 
 #include "libcyperus.h"
 
-/* dan bernstein's xor-based hash */
-/* http://www.cse.yorku.ca/~oz/hash.html */
-
 lo_address lo_addr_send;
 
 int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
@@ -29,7 +26,6 @@ int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
   printf("libcyperus.c::_osc_handler()\n");
   response_t *response = NULL;
   int i;
-
   /* printf("path: <%s>\n", path); */
   /* for (i = 0; i < argc; i++) { */
   /*   printf("arg %d '%c' ", i, types[i]); */
@@ -58,8 +54,7 @@ int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
   if(response == NULL) {
     printf("libcyperus.c::_request_registry_register(), incoming message did not match request\n");
     return 1;
-  }
- 
+  } 
   return 0;
 } /* _handler_osc_message */
 

@@ -34,6 +34,8 @@ char* _build_uuid() {
   return id;
 }
 
+/* dan bernstein's xor-based hash */
+/* http://www.cse.yorku.ca/~oz/hash.html */
 extern unsigned long request_hash_string(unsigned char *str)
 {
   unsigned long hash = 5381;
