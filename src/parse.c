@@ -72,8 +72,6 @@ extern void parse_mains(char *raw_mains, char ****ins, int *num_ins, char ****ou
 } /* parse_mains */
 
 extern void parse_list_bus(char *raw_bus_list, char ****bus_ids, char ****bus_names, int ***num_ins, int ***num_outs, int **num_busses) {
-  printf("parse.c::parse_bus_list()\n");
-  
   char *raw_bus_list_copy_count, *raw_bus_list_copy_parsing, *token, *token_copy, *token_metadata;
   int number_busses = 0, idx = 0, idx_metadata = 0;
   raw_bus_list_copy_count = strdup(raw_bus_list);
@@ -82,7 +80,7 @@ extern void parse_list_bus(char *raw_bus_list, char ****bus_ids, char ****bus_na
   while ((token = strsep(&raw_bus_list_copy_count, "\n")) != NULL) {
     if(strcmp(token, "") == 0)
       continue;
-    printf("bus: %s\n", token);
+    
     number_busses++;
   }
   (**bus_ids) = malloc(sizeof(char *)*number_busses);
@@ -123,4 +121,97 @@ extern void parse_list_bus(char *raw_bus_list, char ****bus_ids, char ****bus_na
   **num_busses = number_busses;
   free(raw_bus_list_copy_count);
   free(raw_bus_list_copy_parsing);
+} /* parse_bus_list */
+
+extern void parse_list_bus_port(char *raw_bus_port_list, char ****bus_port_id_ins, char ****bus_port_name_ins, int **num_ins, char ****bus_port_id_outs, char ****bus_port_name_outs, int **num_outs) {
+  char *raw_bus_port_list_copy_count, *raw_bus_port_list_copy_parsing, *token, *token_copy, *token_metadata;
+  int number_bus_port_ins = 0, number_bus_port_outs = 0, idx_in = 0, idx_out = 0, idx_metadata = 0, parsing_ins = 0;
+  
+  raw_bus_port_list_copy_count = strdup(raw_bus_port_list);
+  raw_bus_port_list_copy_parsing = strdup(raw_bus_port_list);
+  
+  while ((token = strsep(&raw_bus_port_list_copy_count, "\n")) != NULL) {
+    if(strcmp(token, "") == 0)
+      continue;
+    if(strcmp(token, "in:") == 0) {
+      parsing_ins = 1;
+      continue;
+    }
+    if(strcmp(token, "out:") == 0) {
+      parsing_ins = 0;
+      continue;
+    }
+
+    if(parsing_ins)
+      number_bus_port_ins++;
+    else
+      number_bus_port_outs++;
+  }  
+  
+  (**bus_port_id_ins) = malloc(sizeof(char *)*number_bus_port_ins);
+  (**bus_port_id_outs) = malloc(sizeof(char *)*number_bus_port_outs);  
+  (**bus_port_name_ins) = malloc(sizeof(char *)*number_bus_port_ins);
+  (**bus_port_name_outs) = malloc(sizeof(char *)*number_bus_port_outs);
+
+  idx_in = 0;
+  idx_out = 0;
+  // token_copy = malloc(sizeof(char));
+  while ((token = strsep(&raw_bus_port_list_copy_parsing, "\n")) != NULL) {
+    if(strcmp(token, "") == 0) 
+      continue;
+    if(strcmp(token, "in:") == 0) {
+      parsing_ins = 1;
+      continue;
+    }
+    if(strcmp(token, "out:") == 0) {
+      parsing_ins = 0;
+      continue;
+    }
+
+    token_copy = strdup(token);
+    
+    idx_metadata = 0;
+    while((token_metadata = strsep(&token_copy, "|")) != NULL) {
+      if(strcmp(token, "") == 0)
+        continue;
+      
+      printf("\t token_metadata: %s\n", token_metadata);
+
+      switch(idx_metadata) {
+      case 0:
+        if(parsing_ins) {
+          (**bus_port_id_ins)[idx_in] = malloc(sizeof(char)*(strlen(token_metadata)+1));
+          (**bus_port_id_ins)[idx_in] = token_metadata;
+        } else {
+          (**bus_port_id_outs)[idx_out] = malloc(sizeof(char)*(strlen(token_metadata)+1));
+          (**bus_port_id_outs)[idx_out] = token_metadata;
+        }
+        break;
+      case 1:
+        if(parsing_ins) {
+          (**bus_port_name_ins)[idx_in] = malloc(sizeof(char)*(strlen(token_metadata)+1));
+          (**bus_port_name_ins)[idx_in] = token_metadata;
+        } else {
+          (**bus_port_name_outs)[idx_out] = malloc(sizeof(char)*(strlen(token_metadata)+1));
+          (**bus_port_name_outs)[idx_out] = token_metadata;
+        }
+        break;
+      default:
+        break;
+      }
+      idx_metadata++;
+    }
+    if(parsing_ins)
+      idx_in++;
+    else
+      idx_out++;
+  }
+
+  printf("(**bus_port_name_outs)[0]: %s\n", (**bus_port_name_outs)[0]);
+  printf("(**bus_port_name_outs)[0]: %s\n", (**bus_port_name_outs)[0]);
+  
+  **num_ins = number_bus_port_ins;
+  **num_outs = number_bus_port_outs;
+  free(raw_bus_port_list_copy_count);
+  free(raw_bus_port_list_copy_parsing);
 } /* parse_bus_list */

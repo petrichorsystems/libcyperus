@@ -32,8 +32,32 @@ Copyright 2021 murray foster */
 
 request_registry_t *global_registry;
 
-extern int libcyperus_setup(char *osc_port_in, char *osc_port_out);
-extern void libcyperus_list_mains(char ***ins, int *num_ins, char ***outs, int *num_outs);
-extern void libcyperus_add_bus(char *path, char *name, char *ins, char *outs, char **bus_id);
-extern void libcyperus_list_bus(char *path, char ***bus_ids, char ***bus_names, int **num_ins, int **num_outs, int *num_busses);
+extern int libcyperus_setup(char *osc_port_in,
+                            char *osc_port_out);
+
+extern void libcyperus_list_mains(char ***ins,
+                                  int *num_ins,
+                                  char ***outs,
+                                  int *num_outs);
+
+extern void libcyperus_add_bus(char *path,
+                               char *name,
+                               char *ins,
+                               char *outs,
+                               char **bus_id);
+
+extern void libcyperus_list_bus(char *path,
+                                char ***bus_ids,
+                                char ***bus_names,
+                                int **num_ins,
+                                int **num_outs,
+                                int *num_busses);
+
+extern void libcyperus_list_bus_port(char *path,
+                                     char ***bus_port_id_ins,
+                                     char ***bus_port_name_ins,
+                                     int *num_ins,
+                                     char ***bus_port_id_outs,
+                                     char ***bus_port_name_outs,
+                                     int *num_outs);
 #endif

@@ -21,8 +21,11 @@ Copyright 2021 murray foster */
 
 lo_address lo_addr_send;
 
-int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
-                         int argc, void *data, void *user_data) {
+int _osc_message_handler(const char *path,
+                         const char *types,
+                         lo_arg **argv,
+                         int argc, void *data,
+                         void *user_data) {
   printf("libcyperus.c::_osc_handler()\n");
   response_t *response = NULL;
   int i;
@@ -34,7 +37,7 @@ int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
   }
 
   unsigned long hash = request_hash_string((unsigned char*)(argv[0]));
-  printf("about to interate over entries\n");
+  printf("about to iterate over entries\n");
   for(i=0; i<REQUEST_REGISTRY_MAX_ENTRIES; i++) {
     if(*(global_registry->entries[i]->hash) == hash) {
       global_registry->entries[i]->response = realloc(global_registry->entries[i]->response, sizeof(response_t));
@@ -58,7 +61,10 @@ int _handler_osc_message(const char *path, const char *types, lo_arg **argv,
   return 0;
 } /* _handler_osc_message */
 
-extern void libcyperus_list_mains(char ***ins, int *num_ins, char ***outs, int *num_outs) {
+extern void libcyperus_list_mains(char ***ins,
+                                  int *num_ins,
+                                  char ***outs,
+                                  int *num_outs) {
   printf("libcyperus.c::libcyperus_list_mains()\n");
 
   int number_ins = 0, number_outs = 0;
@@ -76,13 +82,19 @@ extern void libcyperus_list_mains(char ***ins, int *num_ins, char ***outs, int *
   request_cleanup(request);
 } /* libcyperus_list_mains */
 
-void error(int num, const char *msg, const char *path)
+void error(int num,
+           const char *msg,
+           const char *path)
 {
   printf("liblo server error %d in path %s: %s\n", num, path, msg);
   fflush(stdout);
 }
 
-extern void libcyperus_add_bus(char *path, char *name, char *ins, char *outs, char **bus_id) {
+extern void libcyperus_add_bus(char *path,
+                               char *name,
+                               char *ins,
+                               char *outs,
+                               char **bus_id) {
   printf("libcyperus.c::libcyperus_add_bus()\n");
 
   int bus_id_length = 0;
@@ -101,10 +113,14 @@ extern void libcyperus_add_bus(char *path, char *name, char *ins, char *outs, ch
   request_cleanup(request);
 } /* libcyperus_add_bus */
 
-extern void libcyperus_list_bus(char *path, char ***bus_ids, char ***bus_names, int **num_ins, int **num_outs, int *num_busses) {
+extern void libcyperus_list_bus(char *path,
+                                char ***bus_ids,
+                                char ***bus_names,
+                                int **num_ins,
+                                int **num_outs,
+                                int *num_busses) {
   printf("libcyperus.c::libcyperus_list_bus()\n");
 
-  /* int number_ins = 0, number_outs = 0; */
   request_t *request = request_register();
   printf("libcyperus.c::libcyperus_list_bus(), request->requst_id: %s\n", request->request_id);
 
@@ -112,10 +128,43 @@ extern void libcyperus_list_bus(char *path, char ***bus_ids, char ***bus_names, 
 
   request_wait(request);
 
-  parse_list_bus((char *)(global_registry->entries[request->id]->response->argv[5]), &bus_ids, &bus_names, &num_ins, &num_outs, &num_busses);
+  parse_list_bus((char *)(global_registry->entries[request->id]->response->argv[5]),
+                 &bus_ids,
+                 &bus_names,
+                 &num_ins,
+                 &num_outs,
+                 &num_busses);
   
   request_cleanup(request);
 } /* libcyperus_list_bus */
+
+extern void libcyperus_list_bus_port(char *path,
+                                     char ***bus_port_id_ins,
+                                     char ***bus_port_name_ins,
+                                     int *num_ins,
+                                     char ***bus_port_id_outs,
+                                     char ***bus_port_name_outs,
+                                     int *num_outs) {
+  printf("libcyperus.c::libcyperus_list_bus_port()\n");
+
+  request_t *request = request_register();
+  printf("libcyperus.c::libcyperus_list_bus_port(), request->request_id: %s\n", request->request_id);
+
+  lo_send(lo_addr_send, "/cyperus/list/bus_port", "ss", request->request_id, path);
+  
+  request_wait(request);
+  
+  parse_list_bus_port((char *)(global_registry->entries[request->id]->response->argv[3]),
+                      &bus_port_id_ins,
+                      &bus_port_name_ins,
+                      &num_ins,
+                      &bus_port_id_outs,
+                      &bus_port_name_outs,
+                      &num_outs);
+
+  request_cleanup(request);
+  
+} /* libcyperus_list_bus_ports */
 
 extern int libcyperus_setup(char *osc_port_in, char *osc_port_out)
 {
@@ -129,7 +178,7 @@ extern int libcyperus_setup(char *osc_port_in, char *osc_port_out)
   request_registry_init();
   
   lo_addr_send = lo_address_new("127.0.0.1", osc_port_out);
-  lo_server_thread_add_method(st, NULL, NULL, _handler_osc_message, NULL);
+  lo_server_thread_add_method(st, NULL, NULL, _osc_message_handler, NULL);
   lo_server_thread_start(st);
   return 0;
 } /* libcyperus_setup */
