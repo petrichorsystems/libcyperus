@@ -1,4 +1,4 @@
-/* parse.h
+/* parse.c
 This file is a part of 'libcyperus'
 This program is free software: you can redistribute it and/or modify
 hit under the terms of the GNU General Public License as published by
@@ -67,9 +67,60 @@ extern void parse_mains(char *raw_mains, char ****ins, int *num_ins, char ****ou
     }
   }
 
-  *num_ins = number_ins;
-  *num_outs = number_outs;
-
   free(raw_mains_copy_count);
   free(raw_mains_copy_parsing);  
 } /* parse_mains */
+
+extern void parse_list_bus(char *raw_bus_list, char ****bus_ids, char ****bus_names, int ***num_ins, int ***num_outs, int **num_busses) {
+  printf("parse.c::parse_bus_list()\n");
+  
+  char *raw_bus_list_copy_count, *raw_bus_list_copy_parsing, *token, *token_copy, *token_metadata;
+  int number_busses = 0, idx = 0, idx_metadata = 0;
+  raw_bus_list_copy_count = strdup(raw_bus_list);
+  raw_bus_list_copy_parsing = strdup(raw_bus_list);
+  
+  while ((token = strsep(&raw_bus_list_copy_count, "\n")) != NULL) {
+    if(strcmp(token, "") == 0)
+      continue;
+    printf("bus: %s\n", token);
+    number_busses++;
+  }
+  (**bus_ids) = malloc(sizeof(char *)*number_busses);
+  (**bus_names) = malloc(sizeof(char *)*number_busses);
+  (**num_ins) = malloc(sizeof(int)*number_busses);
+  (**num_outs) = malloc(sizeof(int)*number_busses);
+  
+  while ((token = strsep(&raw_bus_list_copy_parsing, "\n")) != NULL) {
+    if(strcmp(token, "") == 0) 
+      continue;
+    token_copy = strdup(token);
+    idx_metadata = 0;
+    while((token_metadata = strsep(&token_copy, "|")) != NULL) {
+      if(strcmp(token_metadata, "") != 0) {
+        switch(idx_metadata) {
+        case 0:
+          (**bus_ids)[idx] = malloc(sizeof(char)*(strlen(token_metadata)+1));
+          (**bus_ids)[idx] = token_metadata;
+          break;
+        case 1:
+          (**bus_names)[idx] = malloc(sizeof(char)*(strlen(token_metadata)+1));
+          (**bus_names)[idx] = token_metadata;
+          break;
+        case 2:
+          (**num_ins)[idx] = atoi(token_metadata);
+          break;
+        case 3:
+          (**num_outs)[idx] = atoi(token_metadata);        
+          break;        
+        default:
+          break;
+        }
+        idx_metadata++;
+      }
+    }
+    idx++;
+  }
+  **num_busses = number_busses;
+  free(raw_bus_list_copy_count);
+  free(raw_bus_list_copy_parsing);
+} /* parse_bus_list */

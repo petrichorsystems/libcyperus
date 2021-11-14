@@ -30,4 +30,11 @@ extern void parse_mains(char *raw_mains,
                         char ****outs,
                         int *num_outs);
 
+extern void parse_list_bus(char *raw_bus_list,
+                           char ****bus_ids,
+                           char ****bus_names,
+                           int ***num_ins,
+                           int ***num_outs,
+                           int **num_busses);
+
 #endif

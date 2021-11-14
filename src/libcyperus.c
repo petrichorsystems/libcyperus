@@ -101,6 +101,22 @@ extern void libcyperus_add_bus(char *path, char *name, char *ins, char *outs, ch
   request_cleanup(request);
 } /* libcyperus_add_bus */
 
+extern void libcyperus_list_bus(char *path, char ***bus_ids, char ***bus_names, int **num_ins, int **num_outs, int *num_busses) {
+  printf("libcyperus.c::libcyperus_list_bus()\n");
+
+  /* int number_ins = 0, number_outs = 0; */
+  request_t *request = request_register();
+  printf("libcyperus.c::libcyperus_list_bus(), request->requst_id: %s\n", request->request_id);
+
+  lo_send(lo_addr_send, "/cyperus/list/bus", "ssi", request->request_id, path, 1); /* 1 is for list type 'list all bus peers' */
+
+  request_wait(request);
+
+  parse_list_bus((char *)(global_registry->entries[request->id]->response->argv[5]), &bus_ids, &bus_names, &num_ins, &num_outs, &num_busses);
+  
+  request_cleanup(request);
+} /* libcyperus_list_bus */
+
 extern int libcyperus_setup(char *osc_port_in, char *osc_port_out)
 {
   printf("libcyperus.c::libcyperus_setup()\n");
