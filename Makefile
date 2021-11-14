@@ -2,7 +2,8 @@ all:
 	mkdir -p build/
 	gcc -c -o build/libcyperus.o -Wall -Werror -fpic src/libcyperus.c
 	gcc -c -o build/request.o -Wall -Werror -fpic src/request.c
-	gcc -shared -o build/libcyperus.so build/libcyperus.o build/request.o -luuid -llo -lpthread
+	gcc -c -o build/parse.o -Wall -Werror -fpic src/parse.c
+	gcc -shared -o build/libcyperus.so build/libcyperus.o build/request.o build/parse.o -luuid -llo -lpthread
 clean:
 	rm -r build/
 	rm -r test/

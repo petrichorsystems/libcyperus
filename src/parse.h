@@ -1,4 +1,4 @@
-/* libcyperus.h
+/* parse.h
 This file is a part of 'libcyperus'
 This program is free software: you can redistribute it and/or modify
 hit under the terms of the GNU General Public License as published by
@@ -17,21 +17,17 @@ https://github.com/petrichorsystems/cyperus
 
 Copyright 2021 murray foster */
 
-#ifndef LIBCYPERUS_H_
-#define LIBCYPERUS_H_
+#ifndef PARSE_H_
+#define PARSE_H_
 #include <stdio.h> //printf
 #include <string.h> //memset
 #include <stdlib.h> //exit(0);
-#include <lo/lo.h>
-#include <pthread.h>
-#include <signal.h>
 #include <unistd.h>
 
-#include "request.h"
-#include "parse.h"
+extern void parse_mains(char *raw_mains,
+                        char ****ins,
+                        int *num_ins,
+                        char ****outs,
+                        int *num_outs);
 
-request_registry_t *global_registry;
-
-extern int libcyperus_setup(char *osc_port_in, char *osc_port_out);
-extern void libcyperus_list_mains(char ***ins, int *num_ins, char ***outs, int *num_out);
 #endif
