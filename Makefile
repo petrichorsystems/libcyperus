@@ -6,8 +6,11 @@ all:
 	gcc -shared -o build/libcyperus.so build/libcyperus.o build/request.o build/parse.o -luuid -llo -lpthread
 clean:
 	rm -r build/
-	rm -r test/
 
 test:
-	mkdir -p test/
-	gcc -Lbuild/ -o test/test -luuid -lcyperus src/test/test.c
+	mkdir -p build/test/
+	gcc -Lbuild/ -o build/test/test -luuid -lcyperus src/test/test.c
+
+lua:
+	mkdir -p build/lua/
+	gcc src/lua/Cyperus.c -shared -o build/lua/Cyperus.so -fPIC -llua  -I/usr/include/lua5.4/
