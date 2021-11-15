@@ -48,19 +48,32 @@ int cyperus_index(lua_State* L) {
 }
 int cyperus_get_root(lua_State* L) {
   printf("## dosomething\n");
-  return 0;
+  return 0; 
 }
 int cyperus_new(lua_State* L) {
   printf("## new\n");
   const char *osc_port_in = luaL_checkstring(L, 1);
   const char *osc_host_out = luaL_checkstring (L, 2);
-  const char * osc_port_out = luaL_checkstring (L, 3);
+  const char *osc_port_out = luaL_checkstring (L, 3);
 
   printf("osc_port_in: %s\n", osc_port_in);
   printf("osc_host_out: %s\n", osc_host_out);
   printf("osc_port_out: %s\n", osc_port_out);
 
   libcyperus_setup((char *)osc_port_in, (char *)osc_port_out);
+
+  char **ins, **outs;
+  int num_ins, num_outs;
+  int i;
+  libcyperus_list_mains(&ins, &num_ins, &outs, &num_outs);
+  
+  printf("num_ins: %d\n", num_ins);
+  printf("num_outs: %d\n", num_outs);
+
+  for(int i=0; i<4; i++) {
+    printf("ins[%d]: %s\n", i, ins[i]);
+    printf("outs[%d]: %s\n", i, outs[i]);
+  }
   
   lua_newuserdata(L,sizeof(struct cyperus));
   luaL_getmetatable(L, "Cyperus");

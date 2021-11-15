@@ -66,7 +66,8 @@ extern void parse_mains(char *raw_mains, char ****ins, int *num_ins, char ****ou
       outs_idx++;
     }
   }
-
+  *num_ins = number_ins;
+  *num_outs = number_outs;
   free(raw_mains_copy_count);
   free(raw_mains_copy_parsing);  
 } /* parse_mains */
