@@ -1,3 +1,7 @@
+
+/* original inspiration for this lua 'class object' model came from @tony19 on stack:
+   https://stackoverflow.com/questions/11100435/how-do-i-create-a-class-object-in-lua-c-api-5-2 */
+
 #include <lua.h>
 #include <lauxlib.h>
 #include <stdlib.h>
