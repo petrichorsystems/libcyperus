@@ -60,4 +60,8 @@ extern void libcyperus_list_bus_port(char *path,
                                      char ***bus_port_id_outs,
                                      char ***bus_port_name_outs,
                                      int *num_outs);
+
+extern void libcyperus_add_connection(char *path_out,
+                                      char *path_in);
+
 #endif

@@ -163,11 +163,25 @@ extern void libcyperus_list_bus_port(char *path,
                       &num_outs);
 
   request_cleanup(request);
-  
 } /* libcyperus_list_bus_ports */
 
-extern int libcyperus_setup(char *osc_port_in, char *osc_port_out)
-{
+extern void libcyperus_add_connection(char *path_out,
+                                      char *path_in) {
+  printf("libcyperus.c::libcyperus_add_connection()\n");
+
+  request_t *request = request_register();
+  printf("libcyperus.c::libcyperus_add_connection(), request->request_id: %s\n", request->request_id);
+
+  lo_send(lo_addr_send, "/cyperus/add/connection", "sss", request->request_id, path_in, path_out);
+  
+  request_wait(request);
+
+  /* we gotta do some error code parsing here */
+  
+  request_cleanup(request);
+} /* libcyperus_add_connection */
+
+extern int libcyperus_setup(char *osc_port_in, char *osc_port_out) {
   printf("libcyperus.c::libcyperus_setup()\n");
   lo_server_thread st = lo_server_thread_new(osc_port_in, error);  
   if(osc_port_in == NULL)

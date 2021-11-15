@@ -155,7 +155,7 @@ extern void parse_list_bus_port(char *raw_bus_port_list, char ****bus_port_id_in
 
   idx_in = 0;
   idx_out = 0;
-  // token_copy = malloc(sizeof(char));
+  token_copy = malloc(sizeof(char));
   while ((token = strsep(&raw_bus_port_list_copy_parsing, "\n")) != NULL) {
     if(strcmp(token, "") == 0) 
       continue;
@@ -168,14 +168,13 @@ extern void parse_list_bus_port(char *raw_bus_port_list, char ****bus_port_id_in
       continue;
     }
 
-    token_copy = strdup(token);
+    token_copy = realloc(token_copy, sizeof(char) * (strlen(token) + 1));
+    token_copy = token;
     
     idx_metadata = 0;
     while((token_metadata = strsep(&token_copy, "|")) != NULL) {
       if(strcmp(token, "") == 0)
         continue;
-      
-      printf("\t token_metadata: %s\n", token_metadata);
 
       switch(idx_metadata) {
       case 0:
@@ -206,9 +205,6 @@ extern void parse_list_bus_port(char *raw_bus_port_list, char ****bus_port_id_in
     else
       idx_out++;
   }
-
-  printf("(**bus_port_name_outs)[0]: %s\n", (**bus_port_name_outs)[0]);
-  printf("(**bus_port_name_outs)[0]: %s\n", (**bus_port_name_outs)[0]);
   
   **num_ins = number_bus_port_ins;
   **num_outs = number_bus_port_outs;

@@ -2,6 +2,11 @@
 
 #include "../libcyperus.h"
 
+void test_libcyperus_add_connection() {
+  printf("test.c::test_libcyperus_add_connection()\n");
+  
+} /* test_libcyperus_add_connection */
+
 void test_libcyperus_list_bus_port() {
   printf("test.c::test_libcyperus_list_bus_port()\n");
 
@@ -26,16 +31,16 @@ void test_libcyperus_list_bus_port() {
                            &bus_port_name_outs,
                            &num_port_outs);
 
-  for(idx=0; idx<num_port_ins; idx++) {
-    printf("num_port_in: %d\n", idx);
-    printf("bus_port_id_in: %s\n", bus_port_id_ins[idx]);
-    printf("bus_port_name_in: %s\n", bus_port_name_ins[idx]);
-  }
-  for(idx=0; idx<num_port_outs; idx++) {
-    printf("num_port_out: %d\n", idx);
-    printf("bus_port_id_out: %s\n", bus_port_id_outs[idx]);
-    printf("bus_port_name_out: %s\n", bus_port_name_outs[idx]);
-  }
+  /* for(idx=0; idx<num_port_ins; idx++) { */
+  /*   printf("num_port_in: %d\n", idx); */
+  /*   printf("bus_port_id_in: %s\n", bus_port_id_ins[idx]); */
+  /*   printf("bus_port_name_in: %s\n", bus_port_name_ins[idx]); */
+  /* } */
+  /* for(idx=0; idx<num_port_outs; idx++) { */
+  /*   printf("num_port_out: %d\n", idx); */
+  /*   printf("bus_port_id_out: %s\n", bus_port_id_outs[idx]); */
+  /*   printf("bus_port_name_out: %s\n", bus_port_name_outs[idx]); */
+  /* } */
 } /* test_libcyperus_list_bus_port */
 
 void test_libcyperus_list_bus() {
@@ -87,4 +92,5 @@ int main(void) {
   test_libcyperus_add_bus();
   test_libcyperus_list_bus();
   test_libcyperus_list_bus_port();
+  test_libcyperus_add_connection();
 }
