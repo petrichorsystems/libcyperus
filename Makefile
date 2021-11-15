@@ -13,4 +13,4 @@ test:
 
 lua:
 	mkdir -p build/lua/
-	gcc src/lua/Cyperus.c -shared -o build/lua/Cyperus.so -fPIC -llua  -I/usr/include/lua5.4/
+	gcc -Lbuild/ src/lua/Cyperus.c -shared -o build/lua/Cyperus.so -fPIC -llua -lcyperus -I/usr/include/lua5.4/

@@ -1,24 +1,26 @@
+/* Cyperus.c
+This file is a part of 'libcyperus'
+This program is free software: you can redistribute it and/or modify
+hit under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-/* original inspiration for this lua 'class object' model came from @tony19 on stack:
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+'libcyperus' is a network client library of cyperus.
+https://github.com/petrichorsystems/cyperus
+
+Copyright 2021 murray foster
+
+original inspiration for this lua 'class object' model came from @tony19 on stack:
    https://stackoverflow.com/questions/11100435/how-do-i-create-a-class-object-in-lua-c-api-5-2 */
 
-#include <lua.h>
-#include <lauxlib.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-void register_cyperus_class(lua_State* L);
-
-int cyperus_gc();
-int cyperus_index();
-int cyperus_newindex();
-int cyperus_dosomething();
-int cyperus_new();
-
-
-struct cyperus {
-  int x;
-};
+#include "Cyperus.h"
 
 static const luaL_Reg _meta[] = {
     {"__gc", cyperus_gc},
@@ -28,7 +30,7 @@ static const luaL_Reg _meta[] = {
 };
 static const luaL_Reg _methods[] = {
     {"new", cyperus_new},
-    {"dosomething", cyperus_dosomething},
+    {"get_root", cyperus_get_root},
     { NULL, NULL }
 };
 
@@ -44,13 +46,22 @@ int cyperus_index(lua_State* L) {
   printf("## __index\n");
   return 0;
 }
-int cyperus_dosomething(lua_State* L) {
+int cyperus_get_root(lua_State* L) {
   printf("## dosomething\n");
   return 0;
 }
 int cyperus_new(lua_State* L) {
   printf("## new\n");
+  const char *osc_port_in = luaL_checkstring(L, 1);
+  const char *osc_host_out = luaL_checkstring (L, 2);
+  const char * osc_port_out = luaL_checkstring (L, 3);
 
+  printf("osc_port_in: %s\n", osc_port_in);
+  printf("osc_host_out: %s\n", osc_host_out);
+  printf("osc_port_out: %s\n", osc_port_out);
+
+  libcyperus_setup((char *)osc_port_in, (char *)osc_port_out);
+  
   lua_newuserdata(L,sizeof(struct cyperus));
   luaL_getmetatable(L, "Cyperus");
   lua_setmetatable(L, -2);
