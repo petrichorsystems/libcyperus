@@ -17,8 +17,9 @@ https://github.com/petrichorsystems/cyperus
 
 Copyright 2021 murray foster */
 
-#ifndef REQUEST_H_
-#define REQUEST_H_
+#ifndef LIBCYPERUS_REQUEST_H_
+#define LIBCYPERUS_REQUEST_H_
+
 #include <stdio.h> //printf
 #include <string.h> //memset
 #include <stdlib.h> //exit(0);

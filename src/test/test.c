@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <lo/lo.h>
 
 #include "../libcyperus.h"
 

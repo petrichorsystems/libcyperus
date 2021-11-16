@@ -30,8 +30,10 @@ original inspiration for this lua 'class object' model came from @tony19 on stac
 #include <stdio.h>
 
 #include "../libcyperus.h"
+#include "Bus.h"
 
 static const char REGISTRY_CYPERUS_STATE_KEY[] = "CREGISTRY_LIBCYPERUS_LUA_CYPERUS"; 
+static const char REGISTRY_CYPERUS_BUS_STATE_PREFIX_KEY[] = "CREGISTRY_LIBCYPERUS_LUA_CYPERUS_BUS";
 
 typedef struct libcyperus_lua_cyperus_type {
   char *osc_port_in;
@@ -45,6 +47,17 @@ typedef struct libcyperus_lua_cyperus_type {
   char *root_bus_path;
 } libcyperus_lua_cyperus_t;
 
+typedef struct libcyperus_lua_bus_type {
+  char *bus_path;
+  char *module_id;
+  int num_ins;
+  int num_outs;
+  char **ids_in;
+  char **names_in;
+  char **ids_out;
+  char **names_out;
+} libcyperus_lua_bus_t;
+
 int cyperus_gc();
 int cyperus_index();
 int cyperus_newindex();
@@ -53,6 +66,34 @@ int cyperus_get_ins();
 int cyperus_get_outs();
 int cyperus_new();
 
+int cyperus_update(lua_State *L,
+                   char *osc_port_in,
+                   char *osc_host_out,
+                   char *osc_port_out,
+                   char **ins,
+                   int num_ins,
+                   char **outs,
+                   int num_outs,
+                   int root_bus_exists,
+                   char *root_bus_path);
+
 void register_cyperus_class(lua_State* L);
+
+int cyperus_bus_gc();
+int cyperus_bus_index();
+
+int build_cyperus_bus_registry_key(char *bus_id, char **registry_key);
+
+int add_cyperus_bus(lua_State *L,
+                    char *path,
+                    char *name,
+                    char *ins,
+                    char *outs,
+                    char **bus_id);
+
+int cyperus_bus_newindex();
+int cyperus_bus_get_root();
+int cyperus_bus_get_ins();
+int cyperus_bus_get_outs();
 
 #endif
