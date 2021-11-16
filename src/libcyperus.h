@@ -19,6 +19,7 @@ Copyright 2021 murray foster */
 
 #ifndef LIBCYPERUS_H_
 #define LIBCYPERUS_H_
+
 #include <stdio.h> //printf
 #include <string.h> //memset
 #include <stdlib.h> //exit(0);

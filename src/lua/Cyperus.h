@@ -31,23 +31,25 @@ original inspiration for this lua 'class object' model came from @tony19 on stac
 
 #include "../libcyperus.h"
 
-struct cyperus {
-  int num_main_ins;
-  int num_main_outs;
-  char **main_ins;
-  char **main_outs;  
-};
+static const char REGISTRY_CYPERUS_STATE_KEY[] = "CREGISTRY_LIBCYPERUS_LUA_CYPERUS"; 
 
-typedef struct NumArray
-{
-  int size;
-  double values [1];
-} NumArray;
+typedef struct libcyperus_lua_cyperus_type {
+  char *osc_port_in;
+  char *osc_host_out;
+  char *osc_port_out;
+  int num_ins;
+  int num_outs;
+  char **ins;
+  char **outs;
+  int root_bus_exists;
+  char *root_bus_path;
+} libcyperus_lua_cyperus_t;
 
 int cyperus_gc();
 int cyperus_index();
 int cyperus_newindex();
 int cyperus_get_root();
+int cyperus_get_ins();
 int cyperus_new();
 
 void register_cyperus_class(lua_State* L);
