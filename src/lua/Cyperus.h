@@ -50,6 +50,7 @@ int cyperus_index();
 int cyperus_newindex();
 int cyperus_get_root();
 int cyperus_get_ins();
+int cyperus_get_outs();
 int cyperus_new();
 
 void register_cyperus_class(lua_State* L);

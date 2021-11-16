@@ -32,6 +32,7 @@ static const luaL_Reg _methods[] = {
     {"new", cyperus_new},
     {"get_root", cyperus_get_root},
     {"get_ins", cyperus_get_ins},
+    {"get_outs", cyperus_get_outs},
     { NULL, NULL }
 };
 
@@ -51,26 +52,41 @@ int cyperus_get_root(lua_State* L) {
   printf("## dosomething\n");
   return 0; 
 }
-int cyperus_get_ins(lua_State *L) {
-  printf("## getins\n");
 
-  printf("stack setup\n");
+int cyperus_get_ins(lua_State *L) {
+  printf("Cyperus.c::cyperus_get_ins()\n");
+  int idx;
+
   lua_pushlightuserdata(L, (void *)&REGISTRY_CYPERUS_STATE_KEY);
   lua_gettable(L, LUA_REGISTRYINDEX);
-  printf("get cyperus state\n");
-  
+ 
   libcyperus_lua_cyperus_t *state;
   state = (libcyperus_lua_cyperus_t *)lua_touserdata(L, -1);
-  
-  printf("printing state->osc_port_in\n");
-  printf("state->osc_port_in: %s\n", state->osc_port_in);
-  
-  printf("printing state->num_ins\n");
-  printf("state->num_ins: %d\n", state->num_ins);
 
-  printf("state->ins[0]: %s\n", state->ins[0]);
-  
-  return 0;
+  lua_createtable(L, state->num_ins, 0);
+  for(idx=0; idx<state->num_ins; idx++) {
+    lua_pushstring(L, state->ins[idx]);
+    lua_rawseti(L, -2, idx+1);
+  }
+  return 1;
+}
+
+int cyperus_get_outs(lua_State *L) {
+  printf("Cyperus.c::cyperus_get_outs()\n");  
+  int idx;
+
+  lua_pushlightuserdata(L, (void *)&REGISTRY_CYPERUS_STATE_KEY);
+  lua_gettable(L, LUA_REGISTRYINDEX);
+ 
+  libcyperus_lua_cyperus_t *state;
+  state = (libcyperus_lua_cyperus_t *)lua_touserdata(L, -1);
+
+  lua_createtable(L, state->num_outs, 0);
+  for(idx=0; idx<state->num_outs; idx++) {
+    lua_pushstring(L, state->outs[idx]);
+    lua_rawseti(L, -2, idx+1);
+  }
+  return 1;
 }
 
 int cyperus_new(lua_State* L) {
@@ -89,19 +105,16 @@ int cyperus_new(lua_State* L) {
   printf("osc_host_out: %s\n", osc_host_out);
   printf("osc_port_out: %s\n", osc_port_out);
   
-  state->osc_port_in = osc_port_in;
-  state->osc_host_out = osc_host_out;
-  state->osc_port_out = osc_port_out;
-  
   libcyperus_setup(osc_port_in, osc_host_out, osc_port_out);
   libcyperus_list_mains(&ins, &num_ins, &outs, &num_outs);  
 
+  state->osc_port_in = osc_port_in;
+  state->osc_host_out = osc_host_out;
+  state->osc_port_out = osc_port_out;
   state->ins = ins;
   state->num_ins = num_ins;
   state->outs = outs;
   state->num_outs = num_outs;
-  
-  printf("about to do lua stuff\n");
   
   lua_pushlightuserdata(L, (void *)&REGISTRY_CYPERUS_STATE_KEY);
   lua_pushlightuserdata(L, (void *)state);
