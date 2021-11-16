@@ -35,9 +35,14 @@ struct cyperus {
   int num_main_ins;
   int num_main_outs;
   char **main_ins;
-  char **main_outs;
-  
+  char **main_outs;  
 };
+
+typedef struct NumArray
+{
+  int size;
+  double values [1];
+} NumArray;
 
 int cyperus_gc();
 int cyperus_index();

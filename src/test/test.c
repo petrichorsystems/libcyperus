@@ -85,7 +85,7 @@ void test_libcyperus_list_mains() {
 
 int main(void) {
   printf("test.c::main()\n");
-  libcyperus_setup("5000", "5001");
+  libcyperus_setup("5000", "127.0.0.1", "5001");
   printf("hello world\n");
 
   test_libcyperus_list_mains();
