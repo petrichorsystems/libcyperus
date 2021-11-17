@@ -19,9 +19,11 @@ cyperus = Cyperus.new('5000', '127.0.0.1', '5001')
 ins = cyperus.get_ins()
 outs = cyperus.get_outs()
 
+local root_bus
 root_bus = cyperus.get_root()
 
-print(root_bus.bus_id)
+print(dump(root_bus))
+print(dump(root_bus.bus_id))
 
 print(dump(ins))
 print(dump(outs))

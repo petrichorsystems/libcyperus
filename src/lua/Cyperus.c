@@ -52,7 +52,9 @@ int cyperus_index(lua_State* L) {
   printf("## __index\n");
   return 0;
 }
+
 int cyperus_get_root(lua_State* L) {
+
   printf("Cyperus.c::cyperus_get_root()\n");
   libcyperus_lua_cyperus_t *state;
   libcyperus_lua_bus_t *bus_state;
@@ -78,9 +80,18 @@ int cyperus_get_root(lua_State* L) {
   snprintf(state->root_bus_path, root_path_size, "/%s", bus_id);
   
   state->root_bus_exists = 1;
+
+  register_cyperus_bus_class(L, bus_id);
   
   luaL_getmetatable(L, "Cyperus_Bus");
   lua_setmetatable(L, -2);
+
+  lua_createtable(L, 1, 0);
+  lua_pushstring(L, "bus_id");
+  lua_pushstring(L, bus_id);
+  lua_rawset(L, -3);
+  
+  return 1;
 }
 
 int cyperus_get_ins(lua_State *L) {
@@ -214,7 +225,6 @@ void register_cyperus_class(lua_State* L) {
 
 int luaopen_Cyperus(lua_State *L) {
   register_cyperus_class(L);
-  register_cyperus_bus_class(L);
   return 1;
 }
 
@@ -222,16 +232,16 @@ int luaopen_Cyperus(lua_State *L) {
  * cyperus bus object ************************************
  */
 static const luaL_Reg _bus_meta[] = {
-    {"__gc", cyperus_bus_gc},
-    {"__index", cyperus_bus_index},
-    {"__newindex", cyperus_bus_newindex},
-    {"bus_id", NULL},    
-    { NULL, NULL }
+  {"__gc", cyperus_bus_gc},
+  {"__index", cyperus_bus_index},
+  {"__newindex", cyperus_bus_newindex},
+  { NULL, NULL }
 };
 static const luaL_Reg _bus_methods[] = {
-    {"get_ins", cyperus_bus_get_ins},
-    {"get_outs", cyperus_bus_get_outs},
-    { NULL, NULL }
+  {"get_id", cyperus_bus_getid},
+  {"get_ins", cyperus_bus_get_ins},
+  {"get_outs", cyperus_bus_get_outs},
+  { NULL, NULL }
 };
 
 int cyperus_bus_gc(lua_State* L) {
@@ -253,6 +263,13 @@ int build_cyperus_bus_registry_key(char *bus_id, char **registry_key) {
   *registry_key = malloc(registry_key_size);
   snprintf(*registry_key, registry_key_size, "%s-%s", REGISTRY_CYPERUS_BUS_STATE_PREFIX_KEY, bus_id);
 
+  return 0;
+}
+
+
+int cyperus_bus_getid(lua_State* L) {
+  printf("## getid\n");
+  printf("key - &'something': %lu\n", (unsigned long int)&("something"));
   return 0;
 }
 
@@ -322,7 +339,7 @@ int cyperus_bus_new(lua_State* L) {
   return 1;
 }
 
-void register_cyperus_bus_class(lua_State* L) {
+void register_cyperus_bus_class(lua_State* L, char *bus_id) {
   int lib_id, meta_id;
 
   /* newclass = {} */
@@ -337,17 +354,18 @@ void register_cyperus_bus_class(lua_State* L) {
   /* metatable.__index = _bus_methods */
   luaL_newlib(L, _bus_methods);
   lua_setfield(L, meta_id, "__index");  
-
-  luaL_newlib(L, _bus_methods);
-  lua_setfield(L, meta_id, "__index");  
   
   /* metatable.__bus_metatable = _bus_meta */
   luaL_newlib(L, _bus_meta);
   lua_setfield(L, meta_id, "__bus_metatable");
 
-  /* class.__bus_metatable = metatable */
-  lua_setmetatable(L, lib_id);
+  /* lua_pushstring(L, bus_id); */
+  /* lua_pushstring(L, "bus_id"); */
+  /* lua_settable(L, lib_id); */
 
+  /* class.__bus_metatable = metatable */
+  lua_setmetatable(L, lib_id);    
+  
   /* _G["Cyperus_Bus"] = newclass */
   lua_setglobal(L, "Cyperus_Bus");
 }

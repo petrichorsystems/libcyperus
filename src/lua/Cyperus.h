@@ -30,7 +30,6 @@ original inspiration for this lua 'class object' model came from @tony19 on stac
 #include <stdio.h>
 
 #include "../libcyperus.h"
-#include "Bus.h"
 
 static const char REGISTRY_CYPERUS_STATE_KEY[] = "CREGISTRY_LIBCYPERUS_LUA_CYPERUS"; 
 static const char REGISTRY_CYPERUS_BUS_STATE_PREFIX_KEY[] = "CREGISTRY_LIBCYPERUS_LUA_CYPERUS_BUS";
@@ -79,9 +78,10 @@ int cyperus_update(lua_State *L,
 
 void register_cyperus_class(lua_State* L);
 
+
 int cyperus_bus_gc();
 int cyperus_bus_index();
-
+int cyperus_bus_id();
 int build_cyperus_bus_registry_key(char *bus_id, char **registry_key);
 
 int add_cyperus_bus(lua_State *L,
@@ -92,8 +92,11 @@ int add_cyperus_bus(lua_State *L,
                     char **bus_id);
 
 int cyperus_bus_newindex();
-int cyperus_bus_get_root();
+int cyperus_bus_getid();
 int cyperus_bus_get_ins();
 int cyperus_bus_get_outs();
+
+void register_cyperus_bus_class(lua_State* L, char *bus_id);
+
 
 #endif
