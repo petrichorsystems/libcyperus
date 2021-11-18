@@ -19,6 +19,7 @@ Copyright 2021 murray foster */
 
 #include "libcyperus.h"
 
+request_registry_t *global_registry;
 lo_address lo_addr_send;
 
 int _osc_message_handler(const char *path,

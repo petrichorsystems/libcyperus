@@ -105,4 +105,15 @@ int cyperus_bus_port_add_connection(lua_State *L);
 int _build_bus_ports(lua_State* L, char *bus_path);
 void register_cyperus_bus_port_class(lua_State* L);
 
+int cyperus_module_gc();
+int cyperus_module_index();
+int cyperus_module_id();
+
+int _add_cyperus_module(lua_State *L);
+
+int cyperus_module_newindex();
+
+void register_cyperus_module_class(lua_State* L);
+
+
 #endif

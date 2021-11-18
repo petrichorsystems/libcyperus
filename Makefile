@@ -3,7 +3,8 @@ all:
 	gcc -c -o build/libcyperus.o -Wall -Werror -fpic src/libcyperus.c
 	gcc -c -o build/request.o -Wall -Werror -fpic src/request.c
 	gcc -c -o build/parse.o -Wall -Werror -fpic src/parse.c
-	gcc -shared -o build/libcyperus.so build/libcyperus.o build/request.o build/parse.o -luuid -llo -lpthread
+	gcc -c -o build/modules.o -Wall -Werror -fpic src/modules.c
+	gcc -shared -o build/libcyperus.so build/libcyperus.o build/request.o build/parse.o build/modules.o -luuid -llo -lpthread
 clean:
 	rm -r build/
 

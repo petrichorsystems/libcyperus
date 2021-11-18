@@ -30,8 +30,7 @@ Copyright 2021 murray foster */
 
 #include "request.h"
 #include "parse.h"
-
-request_registry_t *global_registry;
+#include "modules.h"
 
 extern int libcyperus_setup(char *osc_port_in,
                             char *osc_host_out,

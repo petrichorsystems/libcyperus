@@ -8,6 +8,58 @@ void test_libcyperus_add_connection() {
   
 } /* test_libcyperus_add_connection */
 
+void test_libcyperus_list_module_port() {
+  printf("test.c::test_libcyperus_list_module_port()\n");
+
+} /* test_libcyperus_list_module_port */
+
+void test_libcyperus_add_module_audio_oscillator_pulse() {
+  printf("test.c::test_libcyperus_add_module_audio_oscillator_pulse()\n");
+
+  char **bus_ids, **bus_names, **bus_port_id_ins, **bus_port_name_ins,
+    **bus_port_id_outs, **bus_port_name_outs, *path, *module_id;
+  int *num_ins, *num_outs, num_port_ins, num_port_outs, num_busses;
+
+  int idx = 0;
+  
+  libcyperus_list_bus("/", &bus_ids, &bus_names, &num_ins, &num_outs, &num_busses);
+
+  /* grab bus id, make path */
+
+  path = malloc(sizeof(char) * (strlen(bus_ids[0]) + 2));
+  snprintf(path, strlen(bus_ids[0])+2, "/%s", bus_ids[0]);
+
+  libcyperus_list_bus_port(path,
+                           &bus_port_id_ins,
+                           &bus_port_name_ins,
+                           &num_port_ins,
+                           &bus_port_id_outs,
+                           &bus_port_name_outs,
+                           &num_port_outs);
+
+  /* for(idx=0; idx<num_port_ins; idx++) { */
+  /*   printf("num_port_in: %d\n", idx); */
+  /*   printf("bus_port_id_in: %s\n", bus_port_id_ins[idx]); */
+  /*   printf("bus_port_name_in: %s\n", bus_port_name_ins[idx]); */
+  /* } */
+  /* for(idx=0; idx<num_port_outs; idx++) { */
+  /*   printf("num_port_out: %d\n", idx); */
+  /*   printf("bus_port_id_out: %s\n", bus_port_id_outs[idx]); */
+  /*   printf("bus_port_name_out: %s\n", bus_port_name_outs[idx]); */
+  /* } */
+
+  libcyperus_add_module_audio_oscillator_pulse(path,
+                                               440.0f,
+                                               0.5f,
+                                               1.0f,
+                                               0.0f,
+                                               &module_id);
+
+  printf("test.c::test_libcyperus_add_module_audio_oscillator_pulse(), module_id: %s\n", module_id);
+  
+  
+} /* test_libcyperus_add_module_audio_oscillator_pulse */
+
 void test_libcyperus_list_bus_port() {
   printf("test.c::test_libcyperus_list_bus_port()\n");
 
@@ -89,9 +141,11 @@ int main(void) {
   libcyperus_setup("5000", "127.0.0.1", "5001");
   printf("hello world\n");
 
-  test_libcyperus_list_mains();
+  /* test_libcyperus_list_mains(); */
   test_libcyperus_add_bus();
-  test_libcyperus_list_bus();
-  test_libcyperus_list_bus_port();
-  test_libcyperus_add_connection();
+  /* test_libcyperus_list_bus(); */
+  /* test_libcyperus_list_bus_port(); */
+  test_libcyperus_add_module_audio_oscillator_pulse();
+  /* test_libcyperus_list_module_port(); */
+  /* test_libcyperus_add_connection(); */
 }

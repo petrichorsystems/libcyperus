@@ -26,6 +26,7 @@ int luaopen_Cyperus(lua_State *L) {
   register_cyperus_class(L);
   register_cyperus_bus_class(L);
   register_cyperus_bus_port_class(L);
+  register_cyperus_module_class(L);
   return 1;
 }
 
@@ -280,7 +281,7 @@ int build_cyperus_bus_registry_key(char *bus_id, char **registry_key) {
   *registry_key = malloc(registry_key_size);
   snprintf(*registry_key, registry_key_size, "%s-%s", REGISTRY_CYPERUS_BUS_STATE_PREFIX_KEY, bus_id);
 
-  return 0;
+   return 0;
 }
 
 int _add_cyperus_bus(lua_State *L,
@@ -530,4 +531,99 @@ void register_cyperus_bus_port_class(lua_State* L) {
   
   /* _G["Cyperus_Bus_Port"] = newclass */
   lua_setglobal(L, "Cyperus_Bus_Port");
+}
+
+/*
+ * cyperus module object ************************************
+ */
+static const luaL_Reg _module_meta[] = {
+  {"__gc", cyperus_module_gc},
+  {"__index", cyperus_module_index},
+  {"__newindex", cyperus_module_newindex},
+  { NULL, NULL }
+};
+static const luaL_Reg _module_methods[] = {
+  { NULL, NULL }
+};
+
+int cyperus_module_gc(lua_State* L) {
+  printf("## __gc\n");
+  return 0;
+}
+int cyperus_module_newindex(lua_State* L) {
+  printf("## __newindex\n");
+  return 0;
+}
+int cyperus_module_index(lua_State* L) {
+  printf("## __index\n");
+  return 0;
+}
+
+int _add_cyperus_module(lua_State *L) {
+  printf("Cyperus.c::_add_cyperus_module()\n");
+  int error_code, module_path_length;
+  char *module_path, *module_id, *type;
+  
+  char *module_type = (char *)luaL_checkstring(L, 1);
+  char *bus_path = (char *)luaL_checkstring(L, 2);
+
+   
+  if(strcmp("audio/oscillator/pulse", module_type) == 0) {
+    printf("Cyperus.c::_add_cyperus_module(), adding 'audio/oscillator/pulse'\n");
+    float frequency = (float)luaL_checknumber(L, 3);
+    float pulse_width = (float)luaL_checknumber(L, 4);
+    float mul = (float)luaL_checknumber(L, 5);
+    float add = (float)luaL_checknumber(L, 6);
+
+    error_code = libcyperus_add_module_audio_oscillator_pulse(bus_path,
+                                                              frequency,
+                                                              pulse_width,
+                                                              mul,
+                                                              add,
+                                                              &module_id);
+
+    
+    /* strlen(module_path) + strlen("?") + strlen(module_id) + strlen("\0") */
+    module_path_length = strlen(bus_path) + 1 + strlen(module_id) + 1;
+    module_path = malloc(module_path_length);
+    snprintf(module_path, module_path_length, "%s?%s", bus_path, module_id);
+
+    /* libcyperus.list_module_port(); */
+
+    
+
+  } else {
+    printf("Cyperus.c::_add_cyperus_module(), unknown module type, exiting..\n");
+  }
+  
+  
+
+  return 1;
+}
+
+void register_cyperus_module_class(lua_State* L) {
+  int lib_id, meta_id;
+
+  /* newclass = {} */
+  lua_createtable(L, 0, 0);
+  lib_id = lua_gettop(L);
+
+  /* metatable = {} */
+  luaL_newmetatable(L, "Cyperus_Module");
+  meta_id = lua_gettop(L);
+  luaL_setfuncs(L, _module_meta, 0);
+
+  /* metatable.__index = _module_methods */
+  luaL_newlib(L, _module_methods);
+  lua_setfield(L, meta_id, "__index");  
+  
+  /* metatable.__module_metatable = _module_meta */
+  luaL_newlib(L, _module_meta);
+  lua_setfield(L, meta_id, "__module_metatable");
+
+  /* class.__module_metatable = metatable */
+  lua_setmetatable(L, lib_id);    
+  
+  /* _G["Cyperus_Module"] = newclass */
+  lua_setglobal(L, "Cyperus_Module");
 }
