@@ -324,6 +324,8 @@ int cyperus_bus_add_module(lua_State *L) {
   for(idx=-60; idx<60; idx++) {
     if(lua_isstring(L, idx))
       printf("idx: %d, %s\n", idx, lua_tostring(L, idx));
+    if(lua_istable(L, idx))
+      printf("table found!\n");
   }
   
   
