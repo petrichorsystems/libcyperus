@@ -1,4 +1,3 @@
-
 function dump(o)
    if type(o) == 'table' then
       local s = '{ '
@@ -19,18 +18,7 @@ cyperus = Cyperus.new('5000', '127.0.0.1', '5001')
 local root_bus
 root_bus = cyperus.get_root()
 
-print(root_bus)
-print(root_bus.ins)
 print(dump(root_bus))
-print(dump(root_bus.ins))
 
-print(root_bus.ins[1])
-print(dump(root_bus.ins[1]))
-root_bus.ins[1].connect()
-
-print(root_bus.outs[1])
-print(dump(root_bus.outs[1]))
-root_bus.outs[1].connect()
-
-
+root_bus.add_module('audio/oscillator/pulse', 440.0, 0.5, 1.0, 0.0)
 

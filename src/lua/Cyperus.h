@@ -83,7 +83,7 @@ int cyperus_bus_gc();
 int cyperus_bus_index();
 int cyperus_bus_id();
 int build_cyperus_bus_registry_key(char *bus_id, char **registry_key);
-
+int cyperus_bus_add_module();
 int _add_cyperus_bus(lua_State *L,
                     char *path,
                     char *name,
@@ -108,8 +108,6 @@ void register_cyperus_bus_port_class(lua_State* L);
 int cyperus_module_gc();
 int cyperus_module_index();
 int cyperus_module_id();
-
-int _add_cyperus_module(lua_State *L);
 
 int cyperus_module_newindex();
 
