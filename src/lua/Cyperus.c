@@ -22,10 +22,16 @@ original inspiration for this lua 'class object' model came from @tony19 on stac
 
 #include "Cyperus.h"
 
+int luaopen_Cyperus(lua_State *L) {
+  register_cyperus_class(L);
+  register_cyperus_bus_class(L);
+  register_cyperus_bus_port_class(L);
+  return 1;
+}
+
 /*
  * cyperus object ****************************************
  */
-
 static const luaL_Reg _meta[] = {
     {"__gc", cyperus_gc},
     {"__index", cyperus_index},
@@ -54,12 +60,15 @@ int cyperus_index(lua_State* L) {
 }
 
 int cyperus_get_root(lua_State* L) {
-
   printf("Cyperus.c::cyperus_get_root()\n");
   libcyperus_lua_cyperus_t *state;
   libcyperus_lua_bus_t *bus_state;
-  char *bus_id;
-  int root_path_size = 0;
+  char *bus_id, *full_path,
+    **bus_port_id_ins,
+    **bus_port_name_ins,
+    **bus_port_id_outs,
+    **bus_port_name_outs;
+  int error_code, root_path_size = 0, idx, num_ins, num_outs;
   
   lua_pushlightuserdata(L, (void *)&REGISTRY_CYPERUS_STATE_KEY);
   lua_gettable(L, LUA_REGISTRYINDEX);
@@ -71,25 +80,39 @@ int cyperus_get_root(lua_State* L) {
     return -1;
   }
   
-  add_cyperus_bus(L, "/", "main0", "in", "out", &bus_id);
+  error_code = _add_cyperus_bus(L, "/", "main0", "in", "out", &bus_id);
 
   printf("Cyperus.c::cyperus_get_root(), new bus_id: %s\n", bus_id);
-  
+
   root_path_size = sizeof(char) + (1 + strlen(bus_id) + 1);
   state->root_bus_path = malloc(root_path_size);
+  full_path = malloc(root_path_size);
   snprintf(state->root_bus_path, root_path_size, "/%s", bus_id);
-  
+  snprintf(full_path, root_path_size, "/%s", bus_id);
+    
   state->root_bus_exists = 1;
 
-  register_cyperus_bus_class(L, bus_id);
-  
-  luaL_getmetatable(L, "Cyperus_Bus");
-  lua_setmetatable(L, -2);
 
   lua_createtable(L, 1, 0);
+    
+  _build_bus_ports(L, full_path);
+  
   lua_pushstring(L, "bus_id");
   lua_pushstring(L, bus_id);
   lua_rawset(L, -3);
+
+  lua_pushstring(L, "name");
+  lua_pushstring(L, "main0");
+  lua_rawset(L, -3);
+
+  lua_pushstring(L, "full_path");
+  lua_pushstring(L, full_path);
+  lua_rawset(L, -3);
+
+  luaL_getmetatable(L, "Cyperus_Bus");
+  lua_setmetatable(L, -2);
+  
+  free(full_path);
   
   return 1;
 }
@@ -223,11 +246,6 @@ void register_cyperus_class(lua_State* L) {
   lua_setglobal(L, "Cyperus");
 }
 
-int luaopen_Cyperus(lua_State *L) {
-  register_cyperus_class(L);
-  return 1;
-}
-
 /*
  * cyperus bus object ************************************
  */
@@ -238,7 +256,6 @@ static const luaL_Reg _bus_meta[] = {
   { NULL, NULL }
 };
 static const luaL_Reg _bus_methods[] = {
-  {"get_id", cyperus_bus_getid},
   {"get_ins", cyperus_bus_get_ins},
   {"get_outs", cyperus_bus_get_outs},
   { NULL, NULL }
@@ -266,14 +283,7 @@ int build_cyperus_bus_registry_key(char *bus_id, char **registry_key) {
   return 0;
 }
 
-
-int cyperus_bus_getid(lua_State* L) {
-  printf("## getid\n");
-  printf("key - &'something': %lu\n", (unsigned long int)&("something"));
-  return 0;
-}
-
-int add_cyperus_bus(lua_State *L,
+int _add_cyperus_bus(lua_State *L,
                     char *path,
                     char *name,
                     char *ins,
@@ -285,32 +295,23 @@ int add_cyperus_bus(lua_State *L,
   int error_code, registry_key_size, idx;
   char *registry_key;
 
-  error_code = libcyperus_add_bus(path, name, ins, outs, bus_id);
-  build_cyperus_bus_registry_key(*bus_id, &registry_key);
-  
-  lua_pushlightuserdata(L, (void *)&registry_key);
-  lua_pushlightuserdata(L, (void *)state);
-  lua_settable(L, LUA_REGISTRYINDEX);
-
-  /* luaL_getmetatable(L, "Cyperus_Bus"); */
-  /* lua_setmetatable(L, -2); */
+  return libcyperus_add_bus(path, name, ins, outs, bus_id);
 }
 
 int cyperus_bus_get_ins(lua_State *L) {
   printf("Cyperus.c::cyperus_bus_get_ins()\n");
-  int idx;
+  char *bus_id, *full_path;
+  
+  lua_pushstring(L, "bus_id");
+  lua_rawget(L, -3);
+  bus_id = (char *)lua_tostring(L, -1);
 
-  lua_pushlightuserdata(L, (void *)&REGISTRY_CYPERUS_STATE_KEY);
-  lua_gettable(L, LUA_REGISTRYINDEX);
- 
-  libcyperus_lua_cyperus_t *state;
-  state = (libcyperus_lua_cyperus_t *)lua_touserdata(L, -1);
+  lua_pushstring(L, "full_path");
+  lua_rawget(L, -4);
+  full_path = (char *)lua_tostring(L, -1);
 
-  lua_createtable(L, state->num_ins, 0);
-  for(idx=0; idx<state->num_ins; idx++) {
-    lua_pushstring(L, state->ins[idx]);
-    lua_rawseti(L, -2, idx+1);
-  }
+  printf("full_path !!! %s\n", full_path);
+  
   return 0;
 }
 
@@ -339,7 +340,7 @@ int cyperus_bus_new(lua_State* L) {
   return 1;
 }
 
-void register_cyperus_bus_class(lua_State* L, char *bus_id) {
+void register_cyperus_bus_class(lua_State* L) {
   int lib_id, meta_id;
 
   /* newclass = {} */
@@ -359,13 +360,174 @@ void register_cyperus_bus_class(lua_State* L, char *bus_id) {
   luaL_newlib(L, _bus_meta);
   lua_setfield(L, meta_id, "__bus_metatable");
 
-  /* lua_pushstring(L, bus_id); */
-  /* lua_pushstring(L, "bus_id"); */
-  /* lua_settable(L, lib_id); */
-
   /* class.__bus_metatable = metatable */
   lua_setmetatable(L, lib_id);    
   
   /* _G["Cyperus_Bus"] = newclass */
   lua_setglobal(L, "Cyperus_Bus");
+}
+
+/*
+ * cyperus bus port object ************************************
+ */
+static const luaL_Reg _bus_port_meta[] = {
+  {"__gc", cyperus_bus_port_gc},
+  {"__index", cyperus_bus_port_index},
+  {"__newindex", cyperus_bus_port_newindex},
+  { NULL, NULL }
+};
+static const luaL_Reg _bus_port_methods[] = {
+  {"connect", cyperus_bus_port_add_connection},
+  { NULL, NULL }
+};
+
+int cyperus_bus_port_gc(lua_State* L) {
+  printf("## __gc\n");
+  return 0;
+}
+int cyperus_bus_port_newindex(lua_State* L) {
+  printf("## __newindex\n");
+  return 0;
+}
+int cyperus_bus_port_index(lua_State* L) {
+  printf("## __index\n");
+  return 0;
+}
+
+int cyperus_bus_port_add_connection(lua_State *L) {
+  printf("Cyperus.c::cyperus_bus_port_add_onnection()\n");
+}
+
+int _build_bus_ports(lua_State* L, char *bus_path) {
+  printf("Cyperus.c::cyperus_build_bus_ports()\n");
+  char **bus_port_id_ins,
+    **bus_port_name_ins,
+    **bus_port_id_outs,
+    **bus_port_name_outs;
+  int error_code, root_path_size = 0, idx, num_ins, num_outs;
+
+  error_code = libcyperus_list_bus_port(bus_path,
+                                        &bus_port_id_ins,
+                                        &bus_port_name_ins,
+                                        &num_ins,
+                                        &bus_port_id_outs,
+                                        &bus_port_name_outs,
+                                        &num_outs);
+
+  printf("Cyperus.c::_build_bus_ports(), list_bus_port error_code: %d\n", error_code);
+  char *full_path = malloc(sizeof(char));
+  int full_path_length;
+
+  /* bus port ins */
+  lua_createtable(L, 1, 0);
+  lua_createtable(L, 1, 0);
+  for(idx=0; idx<num_ins; idx++) {
+
+    lua_pushstring(L, "id");
+    lua_pushstring(L, bus_port_id_ins[idx]);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "name");
+    lua_pushstring(L, bus_port_name_ins[idx]);
+    lua_rawset(L, -3);
+
+    full_path_length = strlen(bus_path) + 1 + strlen(bus_port_id_ins[idx]) + 1;
+    full_path = realloc(full_path, sizeof(char) * full_path_length);
+    snprintf(full_path, full_path_length, "%s:%s", bus_path, bus_port_id_ins[idx]);
+    
+    lua_pushstring(L, "full_path");
+    lua_pushstring(L, full_path);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "type");
+    lua_pushstring(L, "bus");
+    lua_rawset(L, -3);
+    
+    luaL_getmetatable(L, "Cyperus_Bus_Port");
+    lua_setmetatable(L, -2);
+
+    lua_rawseti(L, -2, idx + 1);
+  }
+  lua_pushstring(L, "ins");
+  lua_insert(L, -2);
+  lua_rawset(L, -3);
+
+  /* bus port outs */
+  lua_createtable(L, 1, 0);
+  lua_createtable(L, 1, 0);
+  for(idx=0; idx<num_outs; idx++) {
+
+    lua_pushstring(L, "id");
+    lua_pushstring(L, bus_port_id_outs[idx]);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "name");
+    lua_pushstring(L, bus_port_name_outs[idx]);
+    lua_rawset(L, -3);
+
+    full_path_length = strlen(bus_path) + 1 + strlen(bus_port_id_outs[idx]) + 1;
+    full_path = realloc(full_path, sizeof(char) * full_path_length);
+    snprintf(full_path, full_path_length, "%s:%s", bus_path, bus_port_id_outs[idx]);
+    
+    lua_pushstring(L, "full_path");
+    lua_pushstring(L, full_path);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "type");
+    lua_pushstring(L, "bus");
+    lua_rawset(L, -3);
+    
+    luaL_getmetatable(L, "Cyperus_Bus_Port");
+    lua_setmetatable(L, -2);
+
+    lua_rawseti(L, -2, idx + 1);
+  }
+  lua_pushstring(L, "outs");
+  lua_insert(L, -2);
+  lua_rawset(L, -3);
+  
+  free(full_path);
+  return 1;
+}
+
+/* int add_cyperus_bus_port(lua_State *L, */
+/*                          char *path, */
+/*                          char *name, */
+/*                          char *ins, */
+/*                          char *outs, */
+/*                          char **bus_id) { */
+/*   printf("Cyperus.c::_add_cyperus_bus_port()\n"); */
+
+/*   libcyperus_lua_bus_port_t *state = malloc(sizeof(libcyperus_lua_bus_port_t)); */
+/*   int error_code, registry_key_size, idx; */
+/*   char *registry_key; */
+
+/*   error_code = libcyperus_add_bus_port(path, name, ins, outs, bus_id); */
+/* } */
+
+void register_cyperus_bus_port_class(lua_State* L) {
+  int lib_id, meta_id;
+
+  /* newclass = {} */
+  lua_createtable(L, 0, 0);
+  lib_id = lua_gettop(L);
+
+  /* metatable = {} */
+  luaL_newmetatable(L, "Cyperus_Bus_Port");
+  meta_id = lua_gettop(L);
+  luaL_setfuncs(L, _bus_port_meta, 0);
+
+  /* metatable.__index = _bus_port_methods */
+  luaL_newlib(L, _bus_port_methods);
+  lua_setfield(L, meta_id, "__index");  
+  
+  /* metatable.__bus_port_metatable = _bus_port_meta */
+  luaL_newlib(L, _bus_port_meta);
+  lua_setfield(L, meta_id, "__bus_port_metatable");
+
+  /* class.__bus_port_metatable = metatable */
+  lua_setmetatable(L, lib_id);    
+  
+  /* _G["Cyperus_Bus_Port"] = newclass */
+  lua_setglobal(L, "Cyperus_Bus_Port");
 }

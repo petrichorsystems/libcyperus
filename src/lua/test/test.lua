@@ -16,14 +16,19 @@ require('Cyperus')
 local cyperus
 cyperus = Cyperus.new('5000', '127.0.0.1', '5001')
 
-ins = cyperus.get_ins()
-outs = cyperus.get_outs()
-
 local root_bus
 root_bus = cyperus.get_root()
 
+print(root_bus)
+print(root_bus.ins)
 print(dump(root_bus))
-print(dump(root_bus.bus_id))
+print(dump(root_bus.ins))
 
-print(dump(ins))
-print(dump(outs))
+print(root_bus.ins[1])
+print(dump(root_bus.ins[1]))
+root_bus.ins[1].connect()
+
+print(root_bus.outs[1])
+print(dump(root_bus.outs[1]))
+root_bus.outs[1].connect()
+

@@ -84,7 +84,7 @@ int cyperus_bus_index();
 int cyperus_bus_id();
 int build_cyperus_bus_registry_key(char *bus_id, char **registry_key);
 
-int add_cyperus_bus(lua_State *L,
+int _add_cyperus_bus(lua_State *L,
                     char *path,
                     char *name,
                     char *ins,
@@ -96,7 +96,13 @@ int cyperus_bus_getid();
 int cyperus_bus_get_ins();
 int cyperus_bus_get_outs();
 
-void register_cyperus_bus_class(lua_State* L, char *bus_id);
+void register_cyperus_bus_class(lua_State* L);
 
+int cyperus_bus_port_gc(lua_State* L);
+int cyperus_bus_port_newindex(lua_State* L);
+int cyperus_bus_port_index(lua_State* L);
+int cyperus_bus_port_add_connection(lua_State *L);
+int _build_bus_ports(lua_State* L, char *bus_path);
+void register_cyperus_bus_port_class(lua_State* L);
 
 #endif
