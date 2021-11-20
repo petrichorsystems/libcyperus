@@ -292,42 +292,46 @@ int build_cyperus_bus_registry_key(char *bus_id, char **registry_key) {
    return 0;
 }
 
-void print_table(lua_State *L)
-    {
-      char *bus_path;
-        lua_pushnil(L);
-        while(lua_next(L, -8) != 0) {
-
-          if ((lua_type(L, -2) == LUA_TSTRING))
-            printf("%s\n", lua_tostring(L, -2));
-
-          if(lua_isstring(L, -1)) {
-            char *key = (char *)lua_tostring(L, -2);
-            if(strcmp(key, "full_path") == 0) {
-              bus_path = (char *)lua_tostring(L, -1);
-              lua_pop(L, 1);
-              break;
-            }
-          }
-          
-          lua_pop(L, 1);
-        }
-
-        printf("bus_path: %s\n", bus_path);
-    }
-
 int cyperus_bus_add_module(lua_State *L) {
-  int idx;
-
+  printf("Cyperus.c::cyperus_bus_add_module()\n");
   
+  int idx, error_code;
+  char *bus_path, *module_type, *module_id;
   
-  for(idx=-60; idx<60; idx++) {
-    if(lua_isstring(L, idx))
-      printf("idx: %d, %s\n", idx, lua_tostring(L, idx));
-    if(lua_istable(L, idx))
-      printf("table found!\n");
+  lua_pushnil(L);
+  while(lua_next(L, -8) != 0) {  
+    if ((lua_type(L, -2) == LUA_TSTRING))
+      printf("%s\n", lua_tostring(L, -2));
+    if(lua_isstring(L, -1)) {
+      char *key = (char *)lua_tostring(L, -2);
+      if(strcmp(key, "full_path") == 0) {
+        bus_path = (char *)lua_tostring(L, -1);
+        lua_pop(L, 1);
+        break;
+      }
+    }
+    
+    lua_pop(L, 1);
   }
-  
+
+  module_type = (char *)luaL_checkstring(L, 1);
+  if(strcmp(module_type, "audio/oscillator/pulse") == 0) {
+    printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
+    float frequency = (float)luaL_checknumber(L, 2);
+    float pulse_width = (float)luaL_checknumber(L, 3);
+    float mul = (float)luaL_checknumber(L, 4);
+    float add = (float)luaL_checknumber(L, 5);
+
+    printf("frequency: %f\n", frequency);
+    printf("pulse_width: %f\n", pulse_width);
+    printf("mul: %f\n", mul);
+    printf("add: %f\n", add);
+    
+
+  } else {
+    printf("module type not found or some sick-ass error msg\n");
+    return -1;
+  }
   
   return 0;
 }
@@ -339,10 +343,6 @@ int _add_cyperus_bus(lua_State *L,
                     char *outs,
                     char **bus_id) {
   printf("Cyperus.c::_add_cyperus_bus()\n");
-
-  libcyperus_lua_bus_t *state = malloc(sizeof(libcyperus_lua_bus_t));
-  int error_code, registry_key_size, idx;
-  char *registry_key;
 
   return libcyperus_add_bus(path, name, ins, outs, bus_id);
 }

@@ -22,3 +22,4 @@ print(dump(root_bus))
 
 root_bus.add_module('audio/oscillator/pulse', 440.0, 0.5, 1.0, 0.0)
 
+print('end')

@@ -159,6 +159,7 @@ extern int libcyperus_add_connection(char *path_out,
   return 0;
 } /* libcyperus_add_connection */
 
+
 extern int libcyperus_setup(char *osc_port_in, char *osc_host_out, char *osc_port_out) {
   printf("libcyperus.c::libcyperus_setup()\n");
   lo_server_thread st = lo_server_thread_new(osc_port_in, error);  

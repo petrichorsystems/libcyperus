@@ -123,12 +123,12 @@ extern void request_wait(request_t *request) {
   pthread_mutex_lock(request->mutex);
   pthread_cond_wait(request->cond, request->mutex);
   pthread_mutex_unlock(request->mutex);
-} /* _request_wait */
+} /* request_wait */
 
 extern void request_cleanup(request_t *request) {
   printf("request.c::request_cleanup()\n");  
   pthread_mutex_lock(request->mutex);
   free(request);
   pthread_mutex_unlock(request->mutex);
-} /* _request_cleanup */
+} /* request_cleanup */
 
