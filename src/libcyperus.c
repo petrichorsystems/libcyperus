@@ -40,7 +40,8 @@ int _osc_message_handler(const char *path,
   printf("about to iterate over entries\n");
   for(i=0; i<REQUEST_REGISTRY_MAX_ENTRIES; i++) {
     if(*(global_registry->entries[i]->hash) == hash) {
-      global_registry->entries[i]->response = realloc(global_registry->entries[i]->response, sizeof(response_t));
+      global_registry->entries[i]->response = malloc(sizeof(response_t));
+      global_registry->entries[i]->response->path = malloc(sizeof(char) * (strlen(path) + 1));
       global_registry->entries[i]->response->path = (char *)path;
       global_registry->entries[i]->response->argv = argv;
       global_registry->entries[i]->response->argc = argc;

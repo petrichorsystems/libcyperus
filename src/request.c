@@ -119,10 +119,13 @@ extern request_t* request_register() {
 } /* register_request */
 
 extern void request_wait(request_t *request) {
-  printf("request.c::request_wait()\n");  
+  printf("request.c::request_wait()\n");
   pthread_mutex_lock(request->mutex);
+  printf("after lock\n");
   pthread_cond_wait(request->cond, request->mutex);
+  printf("after wait\n");
   pthread_mutex_unlock(request->mutex);
+  printf("after unlock\n");
 } /* request_wait */
 
 extern void request_cleanup(request_t *request) {

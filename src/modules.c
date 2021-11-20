@@ -19,6 +19,10 @@ Copyright 2021 murray foster */
 
 #include "modules.h"
 
+void very_unique_function() {
+
+}
+
 extern int libcyperus_add_module_audio_oscillator_pulse(char *bus_path,
                                                         float frequency,
                                                         float pulse_width,
@@ -34,7 +38,10 @@ extern int libcyperus_add_module_audio_oscillator_pulse(char *bus_path,
   lo_send(lo_addr_send, "/cyperus/add/module/audio/oscillator/pulse", "ssffff", request->request_id, bus_path, frequency, pulse_width, mul, add);
 
   request_wait(request);
+
   request_cleanup(request);
 
+  very_unique_function();
+  
   return 0;
 } /* libcyperus_add_bus */

@@ -322,12 +322,12 @@ int cyperus_bus_add_module(lua_State *L) {
     float mul = (float)luaL_checknumber(L, 4);
     float add = (float)luaL_checknumber(L, 5);
 
-    printf("frequency: %f\n", frequency);
-    printf("pulse_width: %f\n", pulse_width);
-    printf("mul: %f\n", mul);
-    printf("add: %f\n", add);
-    
-
+    error_code = libcyperus_add_module_audio_oscillator_pulse(bus_path,
+                                                              frequency,
+                                                              pulse_width,
+                                                              mul,
+                                                              add,
+                                                              &module_id);
   } else {
     printf("module type not found or some sick-ass error msg\n");
     return -1;
