@@ -48,10 +48,29 @@ extern int libcyperus_add_module_audio_filter_moogff(char *bus_path,
 
   request_t *request = request_register();
   
-  printf("libcyperus.c::libcyperus_add_module_audio_filter_moogff(), request->requst_id: %s\n", request->request_id);
+  printf("libcyperus.c::libcyperus_add_module_audio_filter_moogff(), request->request_id: %s\n", request->request_id);
   lo_send(lo_addr_send, "/cyperus/add/module/audio/filter/moogff", "ssfffff", request->request_id, bus_path, frequency, gain, reset, mul, add);
   request_wait(request);
   *module_id = (char *)(global_registry->entries[request->id]->response->argv[2]);
   request_cleanup(request);
   return 0;
-} /* libcyperus_add_bus */
+} /* libcyperus_add_module_audio_filter_moogff */
+
+extern int libcyperus_add_module_motion_envelope_stdshape(char *bus_path,
+                                                          int stdshape,
+                                                          float attack_time,
+                                                          float release_time,
+                                                          float level,
+                                                          float curve,
+                                                          char **module_id) {
+  printf("libcyperus.c::libcyperus_add_module_motion_envelope_stdshape()\n");
+
+  request_t *request = request_register();
+  
+  printf("libcyperus.c::libcyperus_add_module_motion_envelope_stdshape(), request->request_id: %s\n", request->request_id);
+  lo_send(lo_addr_send, "/cyperus/add/module/motion/envelope/stdshape", "ssfffff", request->request_id, bus_path, stdshape, attack_time, release_time, level, curve);
+  request_wait(request);
+  *module_id = (char *)(global_registry->entries[request->id]->response->argv[2]);
+  request_cleanup(request);
+  return 0;
+} /* libcyperus_add_module_motion_envelope_stdshape */

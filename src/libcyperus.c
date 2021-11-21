@@ -137,7 +137,7 @@ extern int libcyperus_list_bus_port(char *path,
   printf("libcyperus.c::libcyperus_list_bus_port(), request->request_id: %s\n", request->request_id);
   lo_send(lo_addr_send, "/cyperus/list/bus_port", "ss", request->request_id, path);
   request_wait(request);
-  parse_list_bus_port((char *)(global_registry->entries[request->id]->response->argv[3]),
+  parse_list_object_port((char *)(global_registry->entries[request->id]->response->argv[3]),
                       &bus_port_id_ins,
                       &bus_port_name_ins,
                       &num_ins,
@@ -147,6 +147,29 @@ extern int libcyperus_list_bus_port(char *path,
   request_cleanup(request);
   return 0;
 } /* libcyperus_list_bus_ports */
+
+extern int libcyperus_list_module_port(char *path,
+                                     char ***module_port_id_ins,
+                                     char ***module_port_name_ins,
+                                     int *num_ins,
+                                     char ***module_port_id_outs,
+                                     char ***module_port_name_outs,
+                                     int *num_outs) {
+  printf("libcyperus.c::libcyperus_list_module_port()\n");
+  request_t *request = request_register();
+  printf("libcyperus.c::libcyperus_list_module_port(), request->request_id: %s\n", request->request_id);
+  lo_send(lo_addr_send, "/cyperus/list/module_port", "ss", request->request_id, path);
+  request_wait(request);
+  parse_list_object_port((char *)(global_registry->entries[request->id]->response->argv[3]),
+                      &module_port_id_ins,
+                      &module_port_name_ins,
+                      &num_ins,
+                      &module_port_id_outs,
+                      &module_port_name_outs,
+                      &num_outs);
+  request_cleanup(request);
+  return 0;
+} /* libcyperus_list_module_ports */
 
 extern int libcyperus_add_connection(char *path_out,
                                       char *path_in) {

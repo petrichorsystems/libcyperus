@@ -57,6 +57,19 @@ typedef struct libcyperus_lua_bus_type {
   char **names_out;
 } libcyperus_lua_bus_t;
 
+typedef struct {
+  char *id;
+  char *name;
+  char *full_path;
+  char *type;
+} cyperus_bus_info_t;
+
+typedef struct {
+  char *id;
+  char *full_path;
+  char *type;
+} cyperus_module_info_t;
+
 int cyperus_gc();
 int cyperus_index();
 int cyperus_newindex();
@@ -77,7 +90,6 @@ int cyperus_update(lua_State *L,
                    char *root_bus_path);
 
 void register_cyperus_class(lua_State* L);
-
 
 int cyperus_bus_gc();
 int cyperus_bus_index();
@@ -106,6 +118,7 @@ void register_cyperus_bus_port_class(lua_State* L);
 int cyperus_module_gc();
 int cyperus_module_index();
 int cyperus_module_id();
+int _build_module_ports(lua_State* L, char *module_path);
 
 int cyperus_module_newindex();
 

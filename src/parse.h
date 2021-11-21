@@ -37,12 +37,13 @@ extern void parse_list_bus(char *raw_bus_list,
                            int ***num_outs,
                            int **num_busses);
 
-extern void parse_list_bus_port(char *raw_bus_port_list,
-                                char ****bus_port_id_ins,
-                                char ****bus_port_name_ins,
+extern void parse_list_object_port(char *raw_object_port_list,
+                                char ****object_port_id_ins,
+                                char ****object_port_name_ins,
                                 int **num_ins,
-                                char ****bus_port_id_outs,
-                                char ****bus_port_name_outs,
+                                char ****object_port_id_outs,
+                                char ****object_port_name_outs,
                                 int **num_outs);
+
 
 #endif

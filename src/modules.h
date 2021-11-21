@@ -46,4 +46,12 @@ extern int libcyperus_add_module_audio_filter_moogff(char *bus_path,
                                                      float mul,
                                                      float add,
                                                      char **module_id);
+
+extern int libcyperus_add_module_motion_envelope_stdshape(char *bus_path,
+                                                          int stdshape,
+                                                          float attack_time,
+                                                          float release_time,
+                                                          float level,
+                                                          float curve,
+                                                          char **module_id);
 #endif

@@ -60,12 +60,6 @@ int cyperus_index(lua_State* L) {
   return 0;
 }
 
-typedef struct {
-  char *id;
-  char *name;
-  char *full_path;
-} cyperus_bus_info_t;
-
 int cyperus_get_root(lua_State* L) {
   printf("Cyperus.c::cyperus_get_root()\n");
   libcyperus_lua_cyperus_t *state;
@@ -119,7 +113,7 @@ int cyperus_get_root(lua_State* L) {
   lua_pushstring(L, full_path);
   lua_rawset(L, -3);
 
-   cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_newuserdata(L, sizeof(cyperus_bus_info_t));  
+  cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_newuserdata(L, sizeof(cyperus_bus_info_t));  
   luaL_getmetatable(L, "Cyperus_Bus");
   lua_setmetatable(L, -2);
 
@@ -340,8 +334,8 @@ int dumpstack (lua_State *L) {
 int cyperus_bus_add_module(lua_State *L) {
   printf("Cyperus.c::cyperus_bus_add_module()\n");
   
-  int idx, error_code;
-  char *bus_path, *module_type, *module_id;
+  int idx, error_code, full_path_size;
+  char *bus_path, *module_type, *module_id, *full_path;
 
   int userdata_idx = dumpstack(L);
 
@@ -354,7 +348,7 @@ int cyperus_bus_add_module(lua_State *L) {
   printf("about to get module_type\n");
   module_type = (char *)luaL_checkstring(L, 1);
   printf("got module type\n");
-  
+
   if(strcmp(module_type, "audio/oscillator/pulse") == 0) {
     printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
     float frequency = (float)luaL_checknumber(L, 2);
@@ -383,12 +377,58 @@ int cyperus_bus_add_module(lua_State *L) {
                                                            mul,
                                                            add,
                                                            &module_id);
+  } else if(strcmp(module_type, "motion/envelope/segment") == 0) {
+    printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
+    int stdshape = (int)luaL_checknumber(L, 2);
+    float attack_time = (float)luaL_checknumber(L, 3);
+    float release_time = (float)luaL_checknumber(L, 4);
+    float level = (float)luaL_checknumber(L, 5);
+    float curve = (float)luaL_checknumber(L, 6);
+    
+    error_code = libcyperus_add_module_motion_envelope_stdshape(bus_path,
+                                                                stdshape,
+                                                                attack_time,
+                                                                release_time,
+                                                                level,
+                                                                curve,
+                                                                &module_id);
   } else {
     printf("module type not found or some sick-ass error msg\n");
     return -1;
   }
 
-  return 0;
+  printf("Cyperus.c::cyperus_bus_add_module(), new module_id: %s\n", module_id);
+
+  full_path_size = sizeof(char) + (1 + strlen(module_id) + 1);
+  full_path = malloc(full_path_size);
+  snprintf(bus_path, full_path_size, "/%s?%s", bus_path, module_id);
+ 
+  lua_settop(L, 0);
+  lua_createtable(L, 1, 3);
+    
+  _build_module_ports(L, full_path);
+  
+  lua_pushstring(L, "module_id");
+  lua_pushstring(L, module_id);
+  lua_rawset(L, -3);
+
+  lua_pushstring(L, "type");
+  lua_pushstring(L, module_type);
+  lua_rawset(L, -3);
+
+  lua_pushstring(L, "full_path");
+  lua_pushstring(L, full_path);
+  lua_rawset(L, -3);
+
+  cyperus_module_info_t *module_info = (cyperus_module_info_t *)lua_newuserdata(L, sizeof(cyperus_module_info_t));  
+  luaL_getmetatable(L, "Cyperus_Module");
+  lua_setmetatable(L, -2);
+
+  bus_info->id = module_id;
+  bus_info->type = module_type;
+  bus_info->full_path = full_path;
+  
+  return 1;
 }
 
 int _add_cyperus_bus(lua_State *L,
@@ -629,6 +669,97 @@ int cyperus_module_index(lua_State* L) {
   return 0;
 }
 
+int _build_module_ports(lua_State* L, char *module_path) {
+  printf("Cyperus.c::cyperus_build_module_ports()\n");
+  char **module_port_id_ins,
+    **module_port_name_ins,
+    **module_port_id_outs,
+    **module_port_name_outs;
+  int error_code, root_path_size = 0, idx, num_ins, num_outs;
+
+  error_code = libcyperus_list_bus_port(module_path,
+                                        &module_port_id_ins,
+                                        &module_port_name_ins,
+                                        &num_ins,
+                                        &module_port_id_outs,
+                                        &module_port_name_outs,
+                                        &num_outs);
+
+  printf("Cyperus.c::_build_module_ports(), list_bus_port error_code: %d\n", error_code);
+  char *full_path = malloc(sizeof(char));
+  int full_path_length;
+
+  /* bus port ins */
+  lua_createtable(L, 1, 0);
+  lua_createtable(L, 1, 0);
+  for(idx=0; idx<num_ins; idx++) {
+
+    lua_pushstring(L, "id");
+    lua_pushstring(L, module_port_id_ins[idx]);
+    lua_rawset(L, -3);
+    
+    lua_pushstring(L, "name");
+    lua_pushstring(L, module_port_name_ins[idx]);
+    lua_rawset(L, -3);
+
+    full_path_length = strlen(module_path) + 1 + strlen(module_port_id_ins[idx]) + 1;
+    full_path = realloc(full_path, sizeof(char) * full_path_length);
+    snprintf(full_path, full_path_length, "%s:%s", module_path, module_port_id_ins[idx]);
+    
+    lua_pushstring(L, "full_path");
+    lua_pushstring(L, full_path);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "type");
+    lua_pushstring(L, "module");
+    lua_rawset(L, -3);
+    
+    luaL_getmetatable(L, "Cyperus_Module_Port");
+    lua_setmetatable(L, -2);
+
+    lua_rawseti(L, -2, idx + 1);
+  }
+  lua_pushstring(L, "ins");
+  lua_insert(L, -2);
+  lua_rawset(L, -3);
+
+  /* bus port outs */
+  lua_createtable(L, 1, 0);
+  lua_createtable(L, 1, 0);
+  for(idx=0; idx<num_outs; idx++) {
+
+    lua_pushstring(L, "id");
+    lua_pushstring(L, module_port_id_outs[idx]);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "name");
+    lua_pushstring(L, module_port_name_outs[idx]);
+    lua_rawset(L, -3);
+
+    full_path_length = strlen(module_path) + 1 + strlen(module_port_id_outs[idx]) + 1;
+    full_path = realloc(full_path, sizeof(char) * full_path_length);
+    snprintf(full_path, full_path_length, "%s:%s", module_path, module_port_id_outs[idx]);
+    
+    lua_pushstring(L, "full_path");
+    lua_pushstring(L, full_path);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "type");
+    lua_pushstring(L, "module");
+    lua_rawset(L, -3);
+    
+    luaL_getmetatable(L, "Cyperus_Module_Port");
+    lua_setmetatable(L, -2);
+
+    lua_rawseti(L, -2, idx + 1);
+  }
+  lua_pushstring(L, "outs");
+  lua_insert(L, -2);
+  lua_rawset(L, -3);
+  
+  /* free(full_path); */
+  return 1;
+}
 
 void register_cyperus_module_class(lua_State* L) {
   int lib_id, meta_id;
