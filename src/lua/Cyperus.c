@@ -348,6 +348,8 @@ int cyperus_bus_add_module(lua_State *L) {
   cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_touserdata(L, userdata_idx);
     
   printf("bus_info->full_path: %s\n", bus_info->full_path);
+
+  bus_path = bus_info->full_path;
   
   printf("about to get module_type\n");
   module_type = (char *)luaL_checkstring(L, 1);
@@ -355,32 +357,32 @@ int cyperus_bus_add_module(lua_State *L) {
   
   if(strcmp(module_type, "audio/oscillator/pulse") == 0) {
     printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
-    /* float frequency = (float)luaL_checknumber(L, 2); */
-    /* float pulse_width = (float)luaL_checknumber(L, 3); */
-    /* float mul = (float)luaL_checknumber(L, 4); */
-    /* float add = (float)luaL_checknumber(L, 5); */
+    float frequency = (float)luaL_checknumber(L, 2);
+    float pulse_width = (float)luaL_checknumber(L, 3);
+    float mul = (float)luaL_checknumber(L, 4);
+    float add = (float)luaL_checknumber(L, 5);
 
-    /* error_code = libcyperus_add_module_audio_oscillator_pulse(bus_path, */
-    /*                                                           frequency, */
-    /*                                                           pulse_width, */
-    /*                                                           mul, */
-    /*                                                           add, */
-    /*                                                           &module_id); */
+    error_code = libcyperus_add_module_audio_oscillator_pulse(bus_path,
+                                                              frequency,
+                                                              pulse_width,
+                                                              mul,
+                                                              add,
+                                                              &module_id);
   } else if(strcmp(module_type, "audio/filter/moogff") == 0) {
     printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
-    /* float frequency = (float)luaL_checknumber(L, 2); */
-    /* float gain = (float)luaL_checknumber(L, 3); */
-    /* float reset = (float)luaL_checknumber(L, 4); */
-    /* float mul = (float)luaL_checknumber(L, 5); */
-    /* float add = (float)luaL_checknumber(L, 6); */
+    float frequency = (float)luaL_checknumber(L, 2);
+    float gain = (float)luaL_checknumber(L, 3);
+    float reset = (float)luaL_checknumber(L, 4);
+    float mul = (float)luaL_checknumber(L, 5);
+    float add = (float)luaL_checknumber(L, 6);
 
-    /* error_code = libcyperus_add_module_audio_filter_moogff(bus_path, */
-    /*                                                        frequency, */
-    /*                                                        gain, */
-    /*                                                        reset, */
-    /*                                                        mul, */
-    /*                                                        add, */
-    /*                                                        &module_id); */
+    error_code = libcyperus_add_module_audio_filter_moogff(bus_path,
+                                                           frequency,
+                                                           gain,
+                                                           reset,
+                                                           mul,
+                                                           add,
+                                                           &module_id);
   } else {
     printf("module type not found or some sick-ass error msg\n");
     return -1;
