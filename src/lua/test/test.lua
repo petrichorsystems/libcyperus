@@ -22,6 +22,6 @@ print(dump(root_bus))
 
 root_bus.add_module('audio/oscillator/pulse', 440.0, 0.5, 1.0, 0.0)
 root_bus.add_module('audio/filter/moogff', 800.0, 1.0, 0.0, 1.0, 0.0)
-
+root_bus.add_module('motion/envelope/stdshape', 3, 0.01, 0.9, 0.5, -4.0)
 
 print('end of lua script')

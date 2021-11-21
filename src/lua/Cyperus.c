@@ -342,7 +342,6 @@ int cyperus_bus_add_module(lua_State *L) {
   cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_touserdata(L, userdata_idx);
     
   printf("bus_info->full_path: %s\n", bus_info->full_path);
-
   bus_path = bus_info->full_path;
   
   printf("about to get module_type\n");
@@ -377,7 +376,7 @@ int cyperus_bus_add_module(lua_State *L) {
                                                            mul,
                                                            add,
                                                            &module_id);
-  } else if(strcmp(module_type, "motion/envelope/segment") == 0) {
+  } else if(strcmp(module_type, "motion/envelope/stdshape") == 0) {
     printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
     int stdshape = (int)luaL_checknumber(L, 2);
     float attack_time = (float)luaL_checknumber(L, 3);

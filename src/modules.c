@@ -68,7 +68,7 @@ extern int libcyperus_add_module_motion_envelope_stdshape(char *bus_path,
   request_t *request = request_register();
   
   printf("libcyperus.c::libcyperus_add_module_motion_envelope_stdshape(), request->request_id: %s\n", request->request_id);
-  lo_send(lo_addr_send, "/cyperus/add/module/motion/envelope/stdshape", "ssfffff", request->request_id, bus_path, stdshape, attack_time, release_time, level, curve);
+  lo_send(lo_addr_send, "/cyperus/add/module/motion/envelope/stdshape", "ssiffff", request->request_id, bus_path, stdshape, attack_time, release_time, level, curve);
   request_wait(request);
   *module_id = (char *)(global_registry->entries[request->id]->response->argv[2]);
   request_cleanup(request);
