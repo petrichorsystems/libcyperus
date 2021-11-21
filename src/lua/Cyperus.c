@@ -712,7 +712,7 @@ int _build_module_ports(lua_State* L, char *module_path) {
     lua_rawset(L, -3);
     
     lua_pushstring(L, "type");
-    lua_pushstring(L, "module");
+    lua_pushstring(L, "module_input");
     lua_rawset(L, -3);
     
     luaL_getmetatable(L, "Cyperus_Module_Port");
@@ -747,7 +747,7 @@ int _build_module_ports(lua_State* L, char *module_path) {
     lua_rawset(L, -3);
 
     lua_pushstring(L, "type");
-    lua_pushstring(L, "module");
+    lua_pushstring(L, "module_output");
     lua_rawset(L, -3);
     
     luaL_getmetatable(L, "Cyperus_Module_Port");
