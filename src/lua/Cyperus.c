@@ -60,6 +60,12 @@ int cyperus_index(lua_State* L) {
   return 0;
 }
 
+typedef struct {
+  char *id;
+  char *name;
+  char *full_path;
+} cyperus_bus_info_t;
+
 int cyperus_get_root(lua_State* L) {
   printf("Cyperus.c::cyperus_get_root()\n");
   libcyperus_lua_cyperus_t *state;
@@ -95,7 +101,9 @@ int cyperus_get_root(lua_State* L) {
     
   state->root_bus_exists = 1;
 
-  lua_createtable(L, 1, 0);
+  
+  lua_settop(L, 0);
+  lua_createtable(L, 1, 3);
     
   _build_bus_ports(L, full_path);
   
@@ -111,10 +119,15 @@ int cyperus_get_root(lua_State* L) {
   lua_pushstring(L, full_path);
   lua_rawset(L, -3);
 
+   cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_newuserdata(L, sizeof(cyperus_bus_info_t));  
   luaL_getmetatable(L, "Cyperus_Bus");
   lua_setmetatable(L, -2);
+
+  bus_info->id = bus_id;
+  bus_info->name = "main0";
+  bus_info->full_path = full_path;
   
-  free(full_path);
+  /* free(full_path); */
   
   return 1;
 }
@@ -265,8 +278,6 @@ static const luaL_Reg _bus_meta[] = {
 };
 static const luaL_Reg _bus_methods[] = {
   {"add_module", cyperus_bus_add_module},
-  {"get_ins", cyperus_bus_get_ins},
-  {"get_outs", cyperus_bus_get_outs},
   { NULL, NULL }
 };
 
@@ -292,47 +303,89 @@ int build_cyperus_bus_registry_key(char *bus_id, char **registry_key) {
    return 0;
 }
 
+int dumpstack (lua_State *L) {
+  int i, count = 0;
+  
+  for(i=-1; i > -120; i--) {
+    printf("%d\t%s\t", i, luaL_typename(L,i));
+
+    printf("lua_type: %d\n", lua_type(L, i));
+    
+    if(lua_isuserdata(L, i))
+      break;
+    
+    switch (lua_type(L, i)) {
+      case LUA_TNUMBER:
+        printf("%g\n",lua_tonumber(L,i));
+        break;
+      case LUA_TSTRING:
+        printf("value: %s\n",lua_tostring(L,i));
+        break;
+      case LUA_TBOOLEAN:
+        printf("%s\n", (lua_toboolean(L, i) ? "true" : "false"));
+        break;
+      case LUA_TNIL:
+        printf("%s\n", "nil");
+        break;
+      default:
+        printf("%p\n",lua_topointer(L,i));
+        break;
+    }    
+  }
+
+  printf("userdata index!: %d\n", i);
+  return i;
+}
+
 int cyperus_bus_add_module(lua_State *L) {
   printf("Cyperus.c::cyperus_bus_add_module()\n");
   
   int idx, error_code;
   char *bus_path, *module_type, *module_id;
-  
-  lua_pushnil(L);
-  while(lua_next(L, -8) != 0) {  
-    if ((lua_type(L, -2) == LUA_TSTRING))
-      printf("%s\n", lua_tostring(L, -2));
-    if(lua_isstring(L, -1)) {
-      char *key = (char *)lua_tostring(L, -2);
-      if(strcmp(key, "full_path") == 0) {
-        bus_path = (char *)lua_tostring(L, -1);
-        lua_pop(L, 1);
-        break;
-      }
-    }
-    
-    lua_pop(L, 1);
-  }
 
+  int userdata_idx = dumpstack(L);
+
+  cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_touserdata(L, userdata_idx);
+    
+  printf("bus_info->full_path: %s\n", bus_info->full_path);
+  
+  printf("about to get module_type\n");
   module_type = (char *)luaL_checkstring(L, 1);
+  printf("got module type\n");
+  
   if(strcmp(module_type, "audio/oscillator/pulse") == 0) {
     printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
-    float frequency = (float)luaL_checknumber(L, 2);
-    float pulse_width = (float)luaL_checknumber(L, 3);
-    float mul = (float)luaL_checknumber(L, 4);
-    float add = (float)luaL_checknumber(L, 5);
+    /* float frequency = (float)luaL_checknumber(L, 2); */
+    /* float pulse_width = (float)luaL_checknumber(L, 3); */
+    /* float mul = (float)luaL_checknumber(L, 4); */
+    /* float add = (float)luaL_checknumber(L, 5); */
 
-    error_code = libcyperus_add_module_audio_oscillator_pulse(bus_path,
-                                                              frequency,
-                                                              pulse_width,
-                                                              mul,
-                                                              add,
-                                                              &module_id);
+    /* error_code = libcyperus_add_module_audio_oscillator_pulse(bus_path, */
+    /*                                                           frequency, */
+    /*                                                           pulse_width, */
+    /*                                                           mul, */
+    /*                                                           add, */
+    /*                                                           &module_id); */
+  } else if(strcmp(module_type, "audio/filter/moogff") == 0) {
+    printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
+    /* float frequency = (float)luaL_checknumber(L, 2); */
+    /* float gain = (float)luaL_checknumber(L, 3); */
+    /* float reset = (float)luaL_checknumber(L, 4); */
+    /* float mul = (float)luaL_checknumber(L, 5); */
+    /* float add = (float)luaL_checknumber(L, 6); */
+
+    /* error_code = libcyperus_add_module_audio_filter_moogff(bus_path, */
+    /*                                                        frequency, */
+    /*                                                        gain, */
+    /*                                                        reset, */
+    /*                                                        mul, */
+    /*                                                        add, */
+    /*                                                        &module_id); */
   } else {
     printf("module type not found or some sick-ass error msg\n");
     return -1;
   }
-  
+
   return 0;
 }
 
@@ -347,50 +400,11 @@ int _add_cyperus_bus(lua_State *L,
   return libcyperus_add_bus(path, name, ins, outs, bus_id);
 }
 
-int cyperus_bus_get_ins(lua_State *L) {
-  printf("Cyperus.c::cyperus_bus_get_ins()\n");
-  char *bus_id, *full_path;
-  
-  lua_pushstring(L, "bus_id");
-  lua_rawget(L, -3);
-  bus_id = (char *)lua_tostring(L, -1);
-
-  lua_pop(L, -1);
-  
-  lua_pushstring(L, "full_path");
-  lua_rawget(L, -4);
-  full_path = (char *)lua_tostring(L, -1);
-
-  lua_pop(L, -1);
-  
-  printf("full_path !!! %s\n", full_path);
-  
-  return 0;
-}
-
-int cyperus_bus_get_outs(lua_State *L) {
-  printf("Cyperus.c::cyperus_bus_get_outs()\n");  
-  int idx;
-
-  lua_pushlightuserdata(L, (void *)&REGISTRY_CYPERUS_STATE_KEY);
-  lua_gettable(L, LUA_REGISTRYINDEX);
- 
-  libcyperus_lua_cyperus_t *state;
-  state = (libcyperus_lua_cyperus_t *)lua_touserdata(L, -1);
-
-  lua_createtable(L, state->num_outs, 0);
-  for(idx=0; idx<state->num_outs; idx++) {
-    lua_pushstring(L, state->outs[idx]);
-    lua_rawseti(L, -2, idx+1);
-  }
-  return 1;
-}
-
 int cyperus_bus_new(lua_State* L) {
   printf("## new\n");
 
   
-  return 1;
+  return 0;
 }
 
 void register_cyperus_bus_class(lua_State* L) {
@@ -449,6 +463,8 @@ int cyperus_bus_port_index(lua_State* L) {
 
 int cyperus_bus_port_add_connection(lua_State *L) {
   printf("Cyperus.c::cyperus_bus_port_add_onnection()\n");
+
+  return 0;
 }
 
 int _build_bus_ports(lua_State* L, char *bus_path) {
@@ -479,7 +495,7 @@ int _build_bus_ports(lua_State* L, char *bus_path) {
     lua_pushstring(L, "id");
     lua_pushstring(L, bus_port_id_ins[idx]);
     lua_rawset(L, -3);
-
+    
     lua_pushstring(L, "name");
     lua_pushstring(L, bus_port_name_ins[idx]);
     lua_rawset(L, -3);
@@ -539,7 +555,7 @@ int _build_bus_ports(lua_State* L, char *bus_path) {
   lua_insert(L, -2);
   lua_rawset(L, -3);
   
-  free(full_path);
+  /* free(full_path); */
   return 1;
 }
 

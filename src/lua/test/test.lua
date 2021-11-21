@@ -21,5 +21,7 @@ root_bus = cyperus.get_root()
 print(dump(root_bus))
 
 root_bus.add_module('audio/oscillator/pulse', 440.0, 0.5, 1.0, 0.0)
+root_bus.add_module('audio/filter/moogff', 800.0, 1.0, 0.0, 1.0, 0.0)
 
-print('end')
+
+print('end of lua script')

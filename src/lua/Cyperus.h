@@ -93,8 +93,6 @@ int _add_cyperus_bus(lua_State *L,
 
 int cyperus_bus_newindex();
 int cyperus_bus_getid();
-int cyperus_bus_get_ins();
-int cyperus_bus_get_outs();
 
 void register_cyperus_bus_class(lua_State* L);
 

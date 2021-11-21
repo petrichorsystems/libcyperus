@@ -39,5 +39,11 @@ extern int libcyperus_add_module_audio_oscillator_pulse(char *bus_path,
                                                         float mul,
                                                         float add,
                                                         char **module_id);
-
+extern int libcyperus_add_module_audio_filter_moogff(char *bus_path,
+                                                     float frequency,
+                                                     float gain,
+                                                     float reset,
+                                                     float mul,
+                                                     float add,
+                                                     char **module_id);
 #endif

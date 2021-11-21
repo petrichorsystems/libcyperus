@@ -19,10 +19,6 @@ Copyright 2021 murray foster */
 
 #include "modules.h"
 
-void very_unique_function() {
-
-}
-
 extern int libcyperus_add_module_audio_oscillator_pulse(char *bus_path,
                                                         float frequency,
                                                         float pulse_width,
@@ -34,14 +30,28 @@ extern int libcyperus_add_module_audio_oscillator_pulse(char *bus_path,
   request_t *request = request_register();
   
   printf("libcyperus.c::libcyperus_add_module_audio_oscillator_pulse(), request->requst_id: %s\n", request->request_id);
-  
   lo_send(lo_addr_send, "/cyperus/add/module/audio/oscillator/pulse", "ssffff", request->request_id, bus_path, frequency, pulse_width, mul, add);
-
   request_wait(request);
+  *module_id = (char *)(global_registry->entries[request->id]->response->argv[2]);
+  request_cleanup(request);  
+  return 0;
+} /* libcyperus_add_module_audio_oscillator_pulse */
 
-  request_cleanup(request);
+extern int libcyperus_add_module_audio_filter_moogff(char *bus_path,
+                                                     float frequency,
+                                                     float gain,
+                                                     float reset,
+                                                     float mul,
+                                                     float add,
+                                                     char **module_id) {
+  printf("libcyperus.c::libcyperus_add_module_audio_filter_moogff()\n");
 
-  very_unique_function();
+  request_t *request = request_register();
   
+  printf("libcyperus.c::libcyperus_add_module_audio_filter_moogff(), request->requst_id: %s\n", request->request_id);
+  lo_send(lo_addr_send, "/cyperus/add/module/audio/filter/moogff", "ssfffff", request->request_id, bus_path, frequency, gain, reset, mul, add);
+  request_wait(request);
+  *module_id = (char *)(global_registry->entries[request->id]->response->argv[2]);
+  request_cleanup(request);
   return 0;
 } /* libcyperus_add_bus */
