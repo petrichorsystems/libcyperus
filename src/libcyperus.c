@@ -158,6 +158,7 @@ extern int libcyperus_list_module_port(char *path,
   printf("libcyperus.c::libcyperus_list_module_port()\n");
   request_t *request = request_register();
   printf("libcyperus.c::libcyperus_list_module_port(), request->request_id: %s\n", request->request_id);
+    printf("libcyperus.c::libcyperus_list_module_port(), path: %s\n", path);
   lo_send(lo_addr_send, "/cyperus/list/module_port", "ss", request->request_id, path);
   request_wait(request);
   parse_list_object_port((char *)(global_registry->entries[request->id]->response->argv[3]),

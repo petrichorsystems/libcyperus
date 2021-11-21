@@ -398,10 +398,12 @@ int cyperus_bus_add_module(lua_State *L) {
 
   printf("Cyperus.c::cyperus_bus_add_module(), new module_id: %s\n", module_id);
 
-  full_path_size = sizeof(char) + (1 + strlen(module_id) + 1);
+  full_path_size = sizeof(char) + (strlen(bus_path) + 1 + strlen(module_id) + 1);
   full_path = malloc(full_path_size);
-  snprintf(bus_path, full_path_size, "/%s?%s", bus_path, module_id);
- 
+  snprintf(full_path, full_path_size, "%s?%s", bus_path, module_id);
+
+  printf("full_path: %s\n", full_path);
+  
   lua_settop(L, 0);
   lua_createtable(L, 1, 3);
     
@@ -423,9 +425,9 @@ int cyperus_bus_add_module(lua_State *L) {
   luaL_getmetatable(L, "Cyperus_Module");
   lua_setmetatable(L, -2);
 
-  bus_info->id = module_id;
-  bus_info->type = module_type;
-  bus_info->full_path = full_path;
+  module_info->id = module_id;
+  module_info->type = module_type;
+  module_info->full_path = full_path;
   
   return 1;
 }
@@ -676,19 +678,19 @@ int _build_module_ports(lua_State* L, char *module_path) {
     **module_port_name_outs;
   int error_code, root_path_size = 0, idx, num_ins, num_outs;
 
-  error_code = libcyperus_list_bus_port(module_path,
-                                        &module_port_id_ins,
-                                        &module_port_name_ins,
-                                        &num_ins,
-                                        &module_port_id_outs,
-                                        &module_port_name_outs,
-                                        &num_outs);
+  error_code = libcyperus_list_module_port(module_path,
+                                           &module_port_id_ins,
+                                           &module_port_name_ins,
+                                           &num_ins,
+                                           &module_port_id_outs,
+                                           &module_port_name_outs,
+                                           &num_outs);
 
-  printf("Cyperus.c::_build_module_ports(), list_bus_port error_code: %d\n", error_code);
+  printf("Cyperus.c::_build_module_ports(), list_module_port error_code: %d\n", error_code);
   char *full_path = malloc(sizeof(char));
   int full_path_length;
 
-  /* bus port ins */
+  /* module port ins */
   lua_createtable(L, 1, 0);
   lua_createtable(L, 1, 0);
   for(idx=0; idx<num_ins; idx++) {
@@ -722,7 +724,7 @@ int _build_module_ports(lua_State* L, char *module_path) {
   lua_insert(L, -2);
   lua_rawset(L, -3);
 
-  /* bus port outs */
+  /* module port outs */
   lua_createtable(L, 1, 0);
   lua_createtable(L, 1, 0);
   for(idx=0; idx<num_outs; idx++) {
