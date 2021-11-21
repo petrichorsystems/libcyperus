@@ -532,9 +532,9 @@ int _build_bus_ports(lua_State* L, char *bus_path) {
 
   /* bus port ins */
   lua_createtable(L, 1, 0);
-  lua_createtable(L, 1, 0);
   for(idx=0; idx<num_ins; idx++) {
-
+    lua_createtable(L, 1, 0);
+  
     lua_pushstring(L, "id");
     lua_pushstring(L, bus_port_id_ins[idx]);
     lua_rawset(L, -3);
@@ -566,9 +566,9 @@ int _build_bus_ports(lua_State* L, char *bus_path) {
 
   /* bus port outs */
   lua_createtable(L, 1, 0);
-  lua_createtable(L, 1, 0);
   for(idx=0; idx<num_outs; idx++) {
-
+    lua_createtable(L, 1, 0);
+  
     lua_pushstring(L, "id");
     lua_pushstring(L, bus_port_id_outs[idx]);
     lua_rawset(L, -3);
@@ -685,50 +685,51 @@ int _build_module_ports(lua_State* L, char *module_path) {
                                            &module_port_id_outs,
                                            &module_port_name_outs,
                                            &num_outs);
-
+  
   printf("Cyperus.c::_build_module_ports(), list_module_port error_code: %d\n", error_code);
   char *full_path = malloc(sizeof(char));
   int full_path_length;
 
   /* module port ins */
   lua_createtable(L, 1, 0);
-  lua_createtable(L, 1, 0);
   for(idx=0; idx<num_ins; idx++) {
+    lua_createtable(L, 1, 0);
 
     lua_pushstring(L, "id");
     lua_pushstring(L, module_port_id_ins[idx]);
     lua_rawset(L, -3);
-    
+
     lua_pushstring(L, "name");
     lua_pushstring(L, module_port_name_ins[idx]);
     lua_rawset(L, -3);
 
     full_path_length = strlen(module_path) + 1 + strlen(module_port_id_ins[idx]) + 1;
     full_path = realloc(full_path, sizeof(char) * full_path_length);
-    snprintf(full_path, full_path_length, "%s:%s", module_path, module_port_id_ins[idx]);
+    snprintf(full_path, full_path_length, "%s<%s", module_path, module_port_id_ins[idx]);
     
     lua_pushstring(L, "full_path");
     lua_pushstring(L, full_path);
     lua_rawset(L, -3);
-
+    
     lua_pushstring(L, "type");
     lua_pushstring(L, "module");
     lua_rawset(L, -3);
     
     luaL_getmetatable(L, "Cyperus_Module_Port");
     lua_setmetatable(L, -2);
-
+    
     lua_rawseti(L, -2, idx + 1);
   }
+
   lua_pushstring(L, "ins");
   lua_insert(L, -2);
   lua_rawset(L, -3);
 
   /* module port outs */
   lua_createtable(L, 1, 0);
-  lua_createtable(L, 1, 0);
+    
   for(idx=0; idx<num_outs; idx++) {
-
+    lua_createtable(L, 1, 0);    
     lua_pushstring(L, "id");
     lua_pushstring(L, module_port_id_outs[idx]);
     lua_rawset(L, -3);
@@ -739,7 +740,7 @@ int _build_module_ports(lua_State* L, char *module_path) {
 
     full_path_length = strlen(module_path) + 1 + strlen(module_port_id_outs[idx]) + 1;
     full_path = realloc(full_path, sizeof(char) * full_path_length);
-    snprintf(full_path, full_path_length, "%s:%s", module_path, module_port_id_outs[idx]);
+    snprintf(full_path, full_path_length, "%s>%s", module_path, module_port_id_outs[idx]);
     
     lua_pushstring(L, "full_path");
     lua_pushstring(L, full_path);
@@ -758,7 +759,7 @@ int _build_module_ports(lua_State* L, char *module_path) {
   lua_insert(L, -2);
   lua_rawset(L, -3);
   
-  /* free(full_path); */
+  free(full_path);
   return 1;
 }
 

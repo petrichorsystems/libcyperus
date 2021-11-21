@@ -126,12 +126,12 @@ extern int libcyperus_list_bus(char *path,
 } /* libcyperus_list_bus */
 
 extern int libcyperus_list_bus_port(char *path,
-                                     char ***bus_port_id_ins,
-                                     char ***bus_port_name_ins,
-                                     int *num_ins,
-                                     char ***bus_port_id_outs,
-                                     char ***bus_port_name_outs,
-                                     int *num_outs) {
+                                    char ***bus_port_id_ins,
+                                    char ***bus_port_name_ins,
+                                    int *num_ins,
+                                    char ***bus_port_id_outs,
+                                    char ***bus_port_name_outs,
+                                    int *num_outs) {
   printf("libcyperus.c::libcyperus_list_bus_port()\n");
   request_t *request = request_register();
   printf("libcyperus.c::libcyperus_list_bus_port(), request->request_id: %s\n", request->request_id);
@@ -149,12 +149,12 @@ extern int libcyperus_list_bus_port(char *path,
 } /* libcyperus_list_bus_ports */
 
 extern int libcyperus_list_module_port(char *path,
-                                     char ***module_port_id_ins,
-                                     char ***module_port_name_ins,
-                                     int *num_ins,
-                                     char ***module_port_id_outs,
-                                     char ***module_port_name_outs,
-                                     int *num_outs) {
+                                       char ***module_port_id_ins,
+                                       char ***module_port_name_ins,
+                                       int *num_ins,
+                                       char ***module_port_id_outs,
+                                       char ***module_port_name_outs,
+                                       int *num_outs) {
   printf("libcyperus.c::libcyperus_list_module_port()\n");
   request_t *request = request_register();
   printf("libcyperus.c::libcyperus_list_module_port(), request->request_id: %s\n", request->request_id);
@@ -173,7 +173,7 @@ extern int libcyperus_list_module_port(char *path,
 } /* libcyperus_list_module_ports */
 
 extern int libcyperus_add_connection(char *path_out,
-                                      char *path_in) {
+                                     char *path_in) {
   printf("libcyperus.c::libcyperus_add_connection()\n");
   request_t *request = request_register();
   printf("libcyperus.c::libcyperus_add_connection(), request->request_id: %s\n", request->request_id);
