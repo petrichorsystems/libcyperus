@@ -297,7 +297,7 @@ int build_cyperus_bus_registry_key(char *bus_id, char **registry_key) {
    return 0;
 }
 
-int dumpstack (lua_State *L) {
+int userdata_dumpstack (lua_State *L) {
   int i, count = 0;
   
   for(i=-1; i > -120; i--) {
@@ -337,7 +337,7 @@ int cyperus_bus_add_module(lua_State *L) {
   int idx, error_code, full_path_size;
   char *bus_path, *module_type, *module_id, *full_path;
 
-  int userdata_idx = dumpstack(L);
+  int userdata_idx = userdata_dumpstack(L);
 
   cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_touserdata(L, userdata_idx);
     
@@ -647,6 +647,7 @@ void register_cyperus_bus_port_class(lua_State* L) {
 /*
  * cyperus module object ************************************
  */
+
 static const luaL_Reg _module_meta[] = {
   {"__gc", cyperus_module_gc},
   {"__index", cyperus_module_index},
@@ -661,12 +662,33 @@ int cyperus_module_gc(lua_State* L) {
   printf("## __gc\n");
   return 0;
 }
+
+int _cyperus_module_generic_index_func(lua_State *L) {
+
+  int userdata_idx = userdata_dumpstack(L);
+  cyperus_module_info_t *module_info = (cyperus_module_info_t *)lua_touserdata(L, userdata_idx);
+
+  char *param_name = (char *)luaL_checkstring(L, 2);
+  float param_value = (float)luaL_checknumber(L, 3);
+
+  printf("param_name: %s\n", param_name);
+  printf("param_value: %f\n", param_value);
+  
+  printf("module_info->id: %s\n", module_info->id);
+  printf("module_info->type: %s\n", module_info->type);
+  printf("module_info->full_path: %s\n", module_info->full_path);
+
+  return 0;
+}
+
 int cyperus_module_newindex(lua_State* L) {
   printf("## __newindex\n");
+  _cyperus_module_generic_index_func(L);
   return 0;
 }
 int cyperus_module_index(lua_State* L) {
   printf("## __index\n");
+  _cyperus_module_generic_index_func(L);
   return 0;
 }
 

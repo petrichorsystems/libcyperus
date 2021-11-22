@@ -29,4 +29,14 @@ pulse = root_bus.add_module('audio/oscillator/pulse', freq, pw, 1.0, 0.0)
 moogff = root_bus.add_module('audio/filter/moogff', cutoff, gain, 0.0, 1.0, 0.0)
 perc = root_bus.add_module('motion/envelope/stdshape', 3, 0.01, release, 0.5, -4.0)
 
+PARAM_MUL=3
+-- perc.outs[1].connect(moogff.ins[PARAM_MUL])
+-- pulse.outs[1].connect(moogff.ins[1])
+-- moogff.outs[1].connect(root_bus.outs[1])
+-- root_bus.outs[1].connect(cyperus.outs[1])
+
+-- perc.gate=-1.0
+
+
+
 print('end of lua script')

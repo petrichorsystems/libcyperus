@@ -64,9 +64,7 @@ extern int libcyperus_add_module_motion_envelope_stdshape(char *bus_path,
                                                           float curve,
                                                           char **module_id) {
   printf("libcyperus.c::libcyperus_add_module_motion_envelope_stdshape()\n");
-
   request_t *request = request_register();
-  
   printf("libcyperus.c::libcyperus_add_module_motion_envelope_stdshape(), request->request_id: %s\n", request->request_id);
   lo_send(lo_addr_send, "/cyperus/add/module/motion/envelope/stdshape", "ssiffff", request->request_id, bus_path, stdshape, attack_time, release_time, level, curve);
   request_wait(request);
@@ -74,3 +72,30 @@ extern int libcyperus_add_module_motion_envelope_stdshape(char *bus_path,
   request_cleanup(request);
   return 0;
 } /* libcyperus_add_module_motion_envelope_stdshape */
+
+extern int libcyperus_edit_module_motion_envelope_stdshape(char *module_path,
+                                                           int release_node,
+                                                           int loop_node,
+                                                           int offset,
+                                                           float gate,
+                                                           float level_scale,
+                                                           float level_bias,
+                                                           float time_scale) {
+  printf("libcyperus.c::libcyperus_edit_module_motion_envelope_stdshape()\n");
+  request_t *request = request_register();  
+  printf("libcyperus.c::libcyperus_edit_module_motion_envelope_stdshape(), request->request_id: %s\n", request->request_id);
+  lo_send(lo_addr_send, "/cyperus/edit/module/motion/envelope/segment",
+          "ssiiiffff",
+          request->request_id,
+          module_path,
+          release_node,
+          loop_node,
+          offset,
+          gate,
+          level_scale,
+          level_bias,
+          time_scale);
+  request_wait(request);
+  request_cleanup(request);
+  return 0;
+} /* libcyperus_edit_module_motion_envelope_stdshape */
