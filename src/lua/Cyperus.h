@@ -117,12 +117,12 @@ void register_cyperus_bus_port_class(lua_State* L);
 
 int cyperus_module_gc();
 int cyperus_module_index();
-int cyperus_module_id();
+int cyperus_module_connect(lua_State *L);
 int _build_module_ports(lua_State* L, char *module_path);
-
 int cyperus_module_newindex();
 
 void register_cyperus_module_class(lua_State* L);
+
 
 
 #endif

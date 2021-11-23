@@ -60,6 +60,37 @@ int cyperus_index(lua_State* L) {
   return 0;
 }
 
+int dumpstack (lua_State *L) {
+  int i, count = 0;
+  
+  for(i=-1; i > -120; i--) {
+    printf("%d\t%s\t", i, luaL_typename(L,i));
+
+    printf("lua_type: %d\n", lua_type(L, i));
+    
+    switch (lua_type(L, i)) {
+      case LUA_TNUMBER:
+        printf("%g\n",lua_tonumber(L,i));
+        break;
+      case LUA_TSTRING:
+        printf("value: %s\n",lua_tostring(L,i));
+        break;
+      case LUA_TBOOLEAN:
+        printf("%s\n", (lua_toboolean(L, i) ? "true" : "false"));
+        break;
+      case LUA_TNIL:
+        printf("%s\n", "nil");
+        break;
+      default:
+        printf("%p\n",lua_topointer(L,i));
+        break;
+    }    
+  }
+
+  printf("userdata index!: %d\n", i);
+  return 0;
+}
+
 int cyperus_get_root(lua_State* L) {
   printf("Cyperus.c::cyperus_get_root()\n");
   libcyperus_lua_cyperus_t *state;
@@ -115,6 +146,9 @@ int cyperus_get_root(lua_State* L) {
 
   cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_newuserdata(L, sizeof(cyperus_bus_info_t));  
   luaL_getmetatable(L, "Cyperus_Bus");
+
+  dumpstack(L);
+  
   lua_setmetatable(L, -2);
 
   bus_info->id = bus_id;
@@ -122,7 +156,10 @@ int cyperus_get_root(lua_State* L) {
   bus_info->full_path = full_path;
   
   /* free(full_path); */
+
+  dumpstack(L);
   
+  lua_insert(L, -2);
   return 1;
 }
 
@@ -428,6 +465,7 @@ int cyperus_bus_add_module(lua_State *L) {
   module_info->id = module_id;
   module_info->type = module_type;
   module_info->full_path = full_path;
+
   
   return 1;
 }
@@ -506,6 +544,7 @@ int cyperus_bus_port_index(lua_State* L) {
 
 int cyperus_bus_port_add_connection(lua_State *L) {
   printf("Cyperus.c::cyperus_bus_port_add_onnection()\n");
+  
 
   return 0;
 }
@@ -530,8 +569,9 @@ int _build_bus_ports(lua_State* L, char *bus_path) {
   char *full_path = malloc(sizeof(char));
   int full_path_length;
 
-  /* bus port ins */
   lua_createtable(L, 1, 0);
+  
+  /* bus port ins */
   for(idx=0; idx<num_ins; idx++) {
     lua_createtable(L, 1, 0);
   
@@ -560,12 +600,14 @@ int _build_bus_ports(lua_State* L, char *bus_path) {
 
     lua_rawseti(L, -2, idx + 1);
   }
+  
   lua_pushstring(L, "ins");
   lua_insert(L, -2);
   lua_rawset(L, -3);
-
+  
   /* bus port outs */
   lua_createtable(L, 1, 0);
+  
   for(idx=0; idx<num_outs; idx++) {
     lua_createtable(L, 1, 0);
   
@@ -594,6 +636,7 @@ int _build_bus_ports(lua_State* L, char *bus_path) {
 
     lua_rawseti(L, -2, idx + 1);
   }
+  
   lua_pushstring(L, "outs");
   lua_insert(L, -2);
   lua_rawset(L, -3);
@@ -655,6 +698,7 @@ static const luaL_Reg _module_meta[] = {
   { NULL, NULL }
 };
 static const luaL_Reg _module_methods[] = {
+  {"connect", cyperus_module_connect},
   { NULL, NULL }
 };
 
@@ -692,6 +736,18 @@ int cyperus_module_index(lua_State* L) {
   return 0;
 }
 
+ int cyperus_module_connect(lua_State* L) {
+   printf("Cyperus.c::cyperus_module_connect()\n");
+
+   char *destination_port = (char *)luaL_checkstring(L, 2);
+   printf("Cyperus.c::cyperus_module_connect(), destination_port: %s\n", destination_port);
+   
+  int userdata_idx = userdata_dumpstack(L);
+  cyperus_module_info_t *module_info = (cyperus_module_info_t *)lua_touserdata(L, userdata_idx);
+   
+   return 0;
+ }
+ 
 int _build_module_ports(lua_State* L, char *module_path) {
   printf("Cyperus.c::cyperus_build_module_ports()\n");
   char **module_port_id_ins,
