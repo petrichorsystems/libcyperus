@@ -135,7 +135,7 @@ int cyperus_get_root(lua_State* L) {
   lua_setmetatable(L, -2);
 
   _build_bus_ports(L, full_path);
-  
+
   lua_pushstring(L, "bus_id");
   lua_pushstring(L, bus_id);
   lua_rawset(L, -3);
@@ -148,15 +148,23 @@ int cyperus_get_root(lua_State* L) {
   lua_pushstring(L, full_path);
   lua_rawset(L, -3);
 
-  cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_newuserdata(L, sizeof(cyperus_bus_info_t));  
-    
-  bus_info->id = bus_id;
-  bus_info->name = "main0";
-  bus_info->full_path = full_path;
-  
-  /* free(full_path); */
+  cyperus_bus_info_t *bus_info = malloc(sizeof(cyperus_bus_info_t));
+  bus_info->id = malloc(sizeof(char) * (strlen(bus_id) + 1));
+  snprintf(bus_info->id, strlen(bus_id)+1, "%s", bus_id);
+  bus_info->name = malloc(sizeof(char) * (strlen("main0") + 1));  
+  snprintf(bus_info->name, strlen("main0")+1, "%s", "main0");
+  bus_info->full_path = malloc(sizeof(char) * (strlen(full_path) + 1));  
+  snprintf(bus_info->full_path, strlen(full_path)+1, "%s", full_path);
+  lua_pushlightuserdata(L, (void *)bus_info);
 
+  cyperus_bus_info_t *temp_bus_info = (cyperus_bus_info_t *)lua_touserdata(L, -1);
+
+  printf("temp_bus_info->full_path: %s\n", temp_bus_info->full_path);
+
+  /* free(full_path); */
+  
   lua_insert(L, -2);
+  
   return 1;
 }
 
@@ -334,12 +342,12 @@ int build_cyperus_bus_registry_key(char *bus_id, char **registry_key) {
 int userdata_dumpstack (lua_State *L) {
   int i, count = 0;
   
-  for(i=-1; i > -120; i--) {
+  for(i=15; i > -120; i--) {
     printf("%d\t%s\t", i, luaL_typename(L,i));
 
     printf("lua_type: %d\n", lua_type(L, i));
     
-    if(lua_isuserdata(L, i))
+    if(lua_istable(L, i))
       break;
     
     switch (lua_type(L, i)) {
@@ -361,6 +369,18 @@ int userdata_dumpstack (lua_State *L) {
     }    
   }
 
+  lua_pushnil(L);;
+  while(lua_next(L, -7) != 0) {
+    if(lua_isstring(L, -1))
+      printf("found string!: idx: %d\n", i);
+    else if(lua_isnumber(L, -1))
+      printf("found number!: idx: %d\n", i);
+    else if(lua_istable(L, -1)) {
+      printf("found another table!\n");
+    }
+    lua_pop(L, 1);
+  }
+  
   printf("userdata index!: %d\n", i);
   return i;
 }
@@ -370,11 +390,12 @@ int cyperus_bus_add_module(lua_State *L) {
   
   int idx, error_code, full_path_size;
   char *bus_path, *module_type, *module_id, *full_path;
-
+  
   int userdata_idx = userdata_dumpstack(L);
-
   cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_touserdata(L, userdata_idx);
-    
+
+  printf("bus_info->name: %s\n", bus_info->name);
+  printf("bus_info->id: %s\n", bus_info->id);
   printf("bus_info->full_path: %s\n", bus_info->full_path);
   bus_path = bus_info->full_path;
   
