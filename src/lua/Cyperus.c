@@ -368,18 +368,6 @@ int userdata_dumpstack (lua_State *L) {
         break;
     }    
   }
-
-  lua_pushnil(L);;
-  while(lua_next(L, -7) != 0) {
-    if(lua_isstring(L, -1))
-      printf("found string!: idx: %d\n", i);
-    else if(lua_isnumber(L, -1))
-      printf("found number!: idx: %d\n", i);
-    else if(lua_istable(L, -1)) {
-      printf("found another table!\n");
-    }
-    lua_pop(L, 1);
-  }
   
   printf("userdata index!: %d\n", i);
   return i;
@@ -392,23 +380,22 @@ int cyperus_bus_add_module(lua_State *L) {
   char *bus_path, *module_type, *module_id, *full_path;
   
   int userdata_idx = userdata_dumpstack(L);
-  cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_touserdata(L, userdata_idx);
 
-  printf("bus_info->name: %s\n", bus_info->name);
-  printf("bus_info->id: %s\n", bus_info->id);
-  printf("bus_info->full_path: %s\n", bus_info->full_path);
-  bus_path = bus_info->full_path;
-  
+  lua_pushstring(L, "full_path");
+  lua_gettable(L, 1);
+  full_path = (char *)lua_tostring(L, -1);
+
+  bus_path = full_path;
   printf("about to get module_type\n");
-  module_type = (char *)luaL_checkstring(L, 1);
+  module_type = (char *)luaL_checkstring(L, 2);
   printf("got module type\n");
 
   if(strcmp(module_type, "audio/oscillator/pulse") == 0) {
     printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
-    float frequency = (float)luaL_checknumber(L, 2);
-    float pulse_width = (float)luaL_checknumber(L, 3);
-    float mul = (float)luaL_checknumber(L, 4);
-    float add = (float)luaL_checknumber(L, 5);
+    float frequency = (float)luaL_checknumber(L, 3);
+    float pulse_width = (float)luaL_checknumber(L, 4);
+    float mul = (float)luaL_checknumber(L, 5);
+    float add = (float)luaL_checknumber(L, 6);
 
     error_code = libcyperus_add_module_audio_oscillator_pulse(bus_path,
                                                               frequency,
@@ -418,11 +405,11 @@ int cyperus_bus_add_module(lua_State *L) {
                                                               &module_id);
   } else if(strcmp(module_type, "audio/filter/moogff") == 0) {
     printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
-    float frequency = (float)luaL_checknumber(L, 2);
-    float gain = (float)luaL_checknumber(L, 3);
-    float reset = (float)luaL_checknumber(L, 4);
-    float mul = (float)luaL_checknumber(L, 5);
-    float add = (float)luaL_checknumber(L, 6);
+    float frequency = (float)luaL_checknumber(L, 3);
+    float gain = (float)luaL_checknumber(L, 4);
+    float reset = (float)luaL_checknumber(L, 5);
+    float mul = (float)luaL_checknumber(L, 6);
+    float add = (float)luaL_checknumber(L, 7);
 
     error_code = libcyperus_add_module_audio_filter_moogff(bus_path,
                                                            frequency,
@@ -433,11 +420,11 @@ int cyperus_bus_add_module(lua_State *L) {
                                                            &module_id);
   } else if(strcmp(module_type, "motion/envelope/stdshape") == 0) {
     printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
-    int stdshape = (int)luaL_checknumber(L, 2);
-    float attack_time = (float)luaL_checknumber(L, 3);
-    float release_time = (float)luaL_checknumber(L, 4);
-    float level = (float)luaL_checknumber(L, 5);
-    float curve = (float)luaL_checknumber(L, 6);
+    int stdshape = (int)luaL_checknumber(L, 3);
+    float attack_time = (float)luaL_checknumber(L, 4);
+    float release_time = (float)luaL_checknumber(L, 5);
+    float level = (float)luaL_checknumber(L, 6);
+    float curve = (float)luaL_checknumber(L, 7);
     
     error_code = libcyperus_add_module_motion_envelope_stdshape(bus_path,
                                                                 stdshape,
