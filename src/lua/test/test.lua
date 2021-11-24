@@ -18,16 +18,20 @@ cyperus = Cyperus.new('5000', '127.0.0.1', '5001')
 local root_bus
 root_bus = cyperus.get_root()
 
+print(root_bus)
+print(root_bus.ins)
+print(dump(root_bus.ins))
+print(root_bus.ins[1])
+print(root_bus.full_path)
+
+root_bus.ins[1].connect()
+
 freq=440
 pw=0.5
 amp=0.5
 cutoff=800
 gain=1
 release=0.9
-
-print(root_bus)
-
-print(root_bus.ins[1])
 
 -- pulse = root_bus.add_module('audio/oscillator/pulse', freq, pw, 1.0, 0.0)
 -- moogff = root_bus.add_module('audio/filter/moogff', cutoff, gain, 0.0, 1.0, 0.0)
@@ -43,7 +47,5 @@ PARAM_MUL=3
 -- root_bus.outs[1].connect(cyperus.outs[1])
 
 -- perc.gate=-1.0
-
-
 
 print('end of lua script')

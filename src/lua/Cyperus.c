@@ -128,8 +128,12 @@ int cyperus_get_root(lua_State* L) {
 
   
   lua_settop(L, 0);
-  lua_createtable(L, 1, 3);
-    
+
+  lua_createtable(L, 1, 0);
+  
+  luaL_getmetatable(L, "Cyperus_Bus");
+  lua_setmetatable(L, -2);
+
   _build_bus_ports(L, full_path);
   
   lua_pushstring(L, "bus_id");
@@ -145,20 +149,13 @@ int cyperus_get_root(lua_State* L) {
   lua_rawset(L, -3);
 
   cyperus_bus_info_t *bus_info = (cyperus_bus_info_t *)lua_newuserdata(L, sizeof(cyperus_bus_info_t));  
-  luaL_getmetatable(L, "Cyperus_Bus");
-
-  dumpstack(L);
-  
-  lua_setmetatable(L, -2);
-
+    
   bus_info->id = bus_id;
   bus_info->name = "main0";
   bus_info->full_path = full_path;
   
   /* free(full_path); */
 
-  dumpstack(L);
-  
   lua_insert(L, -2);
   return 1;
 }
