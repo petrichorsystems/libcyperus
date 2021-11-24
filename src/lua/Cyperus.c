@@ -147,23 +147,6 @@ int cyperus_get_root(lua_State* L) {
   lua_pushstring(L, "full_path");
   lua_pushstring(L, full_path);
   lua_rawset(L, -3);
-
-  cyperus_bus_info_t *bus_info = malloc(sizeof(cyperus_bus_info_t));
-  bus_info->id = malloc(sizeof(char) * (strlen(bus_id) + 1));
-  snprintf(bus_info->id, strlen(bus_id)+1, "%s", bus_id);
-  bus_info->name = malloc(sizeof(char) * (strlen("main0") + 1));  
-  snprintf(bus_info->name, strlen("main0")+1, "%s", "main0");
-  bus_info->full_path = malloc(sizeof(char) * (strlen(full_path) + 1));  
-  snprintf(bus_info->full_path, strlen(full_path)+1, "%s", full_path);
-  lua_pushlightuserdata(L, (void *)bus_info);
-
-  cyperus_bus_info_t *temp_bus_info = (cyperus_bus_info_t *)lua_touserdata(L, -1);
-
-  printf("temp_bus_info->full_path: %s\n", temp_bus_info->full_path);
-
-  /* free(full_path); */
-  
-  lua_insert(L, -2);
   
   return 1;
 }
@@ -339,47 +322,11 @@ int build_cyperus_bus_registry_key(char *bus_id, char **registry_key) {
    return 0;
 }
 
-int userdata_dumpstack (lua_State *L) {
-  int i, count = 0;
-  
-  for(i=15; i > -120; i--) {
-    printf("%d\t%s\t", i, luaL_typename(L,i));
-
-    printf("lua_type: %d\n", lua_type(L, i));
-    
-    if(lua_istable(L, i))
-      break;
-    
-    switch (lua_type(L, i)) {
-      case LUA_TNUMBER:
-        printf("%g\n",lua_tonumber(L,i));
-        break;
-      case LUA_TSTRING:
-        printf("value: %s\n",lua_tostring(L,i));
-        break;
-      case LUA_TBOOLEAN:
-        printf("%s\n", (lua_toboolean(L, i) ? "true" : "false"));
-        break;
-      case LUA_TNIL:
-        printf("%s\n", "nil");
-        break;
-      default:
-        printf("%p\n",lua_topointer(L,i));
-        break;
-    }    
-  }
-  
-  printf("userdata index!: %d\n", i);
-  return i;
-}
-
 int cyperus_bus_add_module(lua_State *L) {
   printf("Cyperus.c::cyperus_bus_add_module()\n");
   
   int idx, error_code, full_path_size;
   char *bus_path, *module_type, *module_id, *full_path;
-  
-  int userdata_idx = userdata_dumpstack(L);
 
   lua_pushstring(L, "full_path");
   lua_gettable(L, 1);
@@ -447,8 +394,11 @@ int cyperus_bus_add_module(lua_State *L) {
   printf("full_path: %s\n", full_path);
   
   lua_settop(L, 0);
-  lua_createtable(L, 1, 3);
-    
+  lua_createtable(L, 1, 0);
+
+  luaL_getmetatable(L, "Cyperus_Module");
+  lua_setmetatable(L, -2);
+  
   _build_module_ports(L, full_path);
   
   lua_pushstring(L, "module_id");
@@ -462,15 +412,6 @@ int cyperus_bus_add_module(lua_State *L) {
   lua_pushstring(L, "full_path");
   lua_pushstring(L, full_path);
   lua_rawset(L, -3);
-
-  cyperus_module_info_t *module_info = (cyperus_module_info_t *)lua_newuserdata(L, sizeof(cyperus_module_info_t));  
-  luaL_getmetatable(L, "Cyperus_Module");
-  lua_setmetatable(L, -2);
-
-  module_info->id = module_id;
-  module_info->type = module_type;
-  module_info->full_path = full_path;
-
   
   return 1;
 }
@@ -714,8 +655,6 @@ int cyperus_module_gc(lua_State* L) {
 
 int _cyperus_module_generic_index_func(lua_State *L) {
 
-  int userdata_idx = userdata_dumpstack(L);
-  cyperus_module_info_t *module_info = (cyperus_module_info_t *)lua_touserdata(L, userdata_idx);
 
   char *param_name = (char *)luaL_checkstring(L, 2);
   float param_value = (float)luaL_checknumber(L, 3);
@@ -723,10 +662,6 @@ int _cyperus_module_generic_index_func(lua_State *L) {
   printf("param_name: %s\n", param_name);
   printf("param_value: %f\n", param_value);
   
-  printf("module_info->id: %s\n", module_info->id);
-  printf("module_info->type: %s\n", module_info->type);
-  printf("module_info->full_path: %s\n", module_info->full_path);
-
   return 0;
 }
 
@@ -746,10 +681,7 @@ int cyperus_module_index(lua_State* L) {
 
    char *destination_port = (char *)luaL_checkstring(L, 2);
    printf("Cyperus.c::cyperus_module_connect(), destination_port: %s\n", destination_port);
-   
-  int userdata_idx = userdata_dumpstack(L);
-  cyperus_module_info_t *module_info = (cyperus_module_info_t *)lua_touserdata(L, userdata_idx);
-   
+      
    return 0;
  }
  
@@ -842,7 +774,7 @@ int _build_module_ports(lua_State* L, char *module_path) {
   lua_insert(L, -2);
   lua_rawset(L, -3);
   
-  free(full_path);
+  /* free(full_path); */
   return 1;
 }
 
