@@ -410,10 +410,9 @@ int cyperus_bus_add_module(lua_State *L) {
   full_path = (char *)lua_tostring(L, -1);
 
   bus_path = full_path;
-  printf("about to get module_type\n");
   module_type = (char *)luaL_checkstring(L, 2);
-  printf("got module type\n");
 
+  
   if(strcmp(module_type, "audio/oscillator/pulse") == 0) {
     printf("Cyperus.c::cyperus_bus_add_module, module_type: %s\n", module_type);
     float frequency = (float)luaL_checknumber(L, 3);
@@ -421,6 +420,28 @@ int cyperus_bus_add_module(lua_State *L) {
     float mul = (float)luaL_checknumber(L, 5);
     float add = (float)luaL_checknumber(L, 6);
 
+    lua_settop(L, 0);
+    lua_createtable(L, 1, 0);
+
+    luaL_getmetatable(L, "Cyperus_Module");
+    lua_setmetatable(L, -2);
+
+    lua_pushstring(L, "param_frequency");
+    lua_pushnumber(L, frequency);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "param_pulse_width");
+    lua_pushnumber(L, pulse_width);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "param_mul");
+    lua_pushnumber(L, mul);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "param_add");
+    lua_pushnumber(L, add);
+    lua_rawset(L, -3);    
+    
     error_code = libcyperus_add_module_audio_oscillator_pulse(bus_path,
                                                               frequency,
                                                               pulse_width,
@@ -435,6 +456,32 @@ int cyperus_bus_add_module(lua_State *L) {
     float mul = (float)luaL_checknumber(L, 6);
     float add = (float)luaL_checknumber(L, 7);
 
+    lua_settop(L, 0);
+    lua_createtable(L, 1, 0);
+
+    luaL_getmetatable(L, "Cyperus_Module");
+    lua_setmetatable(L, -2);
+
+    lua_pushstring(L, "param_frequency");
+    lua_pushnumber(L, frequency);
+    lua_rawset(L, -3);
+    
+    lua_pushstring(L, "param_gain");
+    lua_pushnumber(L, gain);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "param_reset");
+    lua_pushnumber(L, reset);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "param_mul");
+    lua_pushnumber(L, mul);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "param_add");
+    lua_pushnumber(L, add);
+    lua_rawset(L, -3);    
+    
     error_code = libcyperus_add_module_audio_filter_moogff(bus_path,
                                                            frequency,
                                                            gain,
@@ -449,6 +496,36 @@ int cyperus_bus_add_module(lua_State *L) {
     float release_time = (float)luaL_checknumber(L, 5);
     float level = (float)luaL_checknumber(L, 6);
     float curve = (float)luaL_checknumber(L, 7);
+
+    lua_settop(L, 0);
+    lua_createtable(L, 1, 0);
+
+    luaL_getmetatable(L, "Cyperus_Module");
+    lua_setmetatable(L, -2);
+
+    lua_pushstring(L, "param_release_node");
+    lua_pushnumber(L, -1);
+    lua_rawset(L, -3);
+    
+    lua_pushstring(L, "param_loop_node");
+    lua_pushnumber(L, -1);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "param_gate");
+    lua_pushnumber(L, -1.0f);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "param_level_scale");
+    lua_pushnumber(L, 1.0f);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "param_level_bias");
+    lua_pushnumber(L, 0.0f);
+    lua_rawset(L, -3);
+
+    lua_pushstring(L, "param_time_scale");
+    lua_pushnumber(L, 1.0f);
+    lua_rawset(L, -3);    
     
     error_code = libcyperus_add_module_motion_envelope_stdshape(bus_path,
                                                                 stdshape,
@@ -469,12 +546,7 @@ int cyperus_bus_add_module(lua_State *L) {
   snprintf(full_path, full_path_size, "%s?%s", bus_path, module_id);
 
   printf("full_path: %s\n", full_path);
-  
-  lua_settop(L, 0);
-  lua_createtable(L, 1, 0);
 
-  luaL_getmetatable(L, "Cyperus_Module");
-  lua_setmetatable(L, -2);
   
   _build_module_ports(L, full_path);
   
@@ -784,19 +856,37 @@ int cyperus_module_gc(lua_State* L) {
 }
 
 int _cyperus_module_generic_index_func(lua_State *L) {
+  printf("Cyperus.c::_cyperus_module_generic_index_func()\n");
 
-
+  // vars
+  
   char *param_name = (char *)luaL_checkstring(L, 2);
   float param_value = (float)luaL_checknumber(L, 3);
 
-  printf("param_name: %s\n", param_name);
-  printf("param_value: %f\n", param_value);
-  
+   printf("Cyperus.c::_cyperus_module_generic_index_func(), param_name: %s\n", param_name);
+   printf("Cyperus.c::_cyperus_module_generic_index_func(), param_value: %f\n", param_value);
+
+   lua_pushnil(L);
+   while(lua_next(L, 1) != 0) {
+     const char *key = lua_tostring(L, -2);
+     if(strstr(key, param_name) != NULL) {
+       if(lua_isstring(L, -1))
+         printf("%s = %s\n", key, lua_tostring(L, -1));
+       else if(lua_isnumber(L, -1))
+         printf("%s = %f\n", key, lua_tonumber(L, -1));
+       else if(lua_istable(L, -1)) {
+         printf("%s\n", key);
+       }
+     }
+     lua_pop(L, 1);
+   }
+    
   return 0;
 }
 
 int cyperus_module_newindex(lua_State* L) {
-  printf("## __newindex\n");
+  printf("Cyperus.c::cyperus_module_newindex()\n");
+  printf("Cyperus.c::cyperus_module_newindex(), ## __newindex\n");
   _cyperus_module_generic_index_func(L);
   return 0;
 }

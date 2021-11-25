@@ -13,7 +13,6 @@ end
 
 require('Cyperus')
 
-
 freq=440
 pw=0.5
 amp=0.5
@@ -35,9 +34,15 @@ param_mul=3
 perc.outs[1]:connect(moogff.ins[param_mul])
 pulse.outs[1]:connect(moogff.ins[1])
 moogff.outs[1]:connect(root_bus.outs[1])
+-- 'stereo' output
 root_bus.outs[1]:connect(cyperus.outs[1])
+root_bus.outs[1]:connect(cyperus.outs[2])
 
--- perc.gate=-1.0
+-- using a class member to provide a momentary gate to the percussive envelope
+perc.gate=-1.0
+
+-- create osc handler with user-specified path to supply a momentary gate
+--   to the percussive envelope
 -- perc.gate(
 
 print('end of lua script')
