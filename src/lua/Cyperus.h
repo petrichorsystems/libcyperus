@@ -74,10 +74,7 @@ int cyperus_gc();
 int cyperus_index();
 int cyperus_newindex();
 int cyperus_get_root();
-int cyperus_get_ins();
-int cyperus_get_outs();
 int cyperus_new();
-
 int cyperus_update(lua_State *L,
                    char *osc_port_in,
                    char *osc_host_out,
@@ -88,8 +85,14 @@ int cyperus_update(lua_State *L,
                    int num_outs,
                    int root_bus_exists,
                    char *root_bus_path);
-
 void register_cyperus_class(lua_State* L);
+
+int cyperus_port_gc(lua_State* L);
+int cyperus_port_newindex(lua_State* L);
+int cyperus_port_index(lua_State* L);
+int cyperus_port_add_connection(lua_State *L);
+int _build_ports(lua_State* L);
+void register_cyperus_port_class(lua_State *L);
 
 int cyperus_bus_gc();
 int cyperus_bus_index();
@@ -107,7 +110,6 @@ int cyperus_bus_newindex();
 int cyperus_bus_getid();
 
 void register_cyperus_bus_class(lua_State* L);
-
 int cyperus_bus_port_gc(lua_State* L);
 int cyperus_bus_port_newindex(lua_State* L);
 int cyperus_bus_port_index(lua_State* L);
@@ -117,9 +119,9 @@ void register_cyperus_bus_port_class(lua_State* L);
 
 int cyperus_module_gc();
 int cyperus_module_index();
+int _cyperus_make_connection(lua_State *L);
 int cyperus_module_connect(lua_State *L);
 int cyperus_module_newindex();
-
 void register_cyperus_module_class(lua_State* L);
 
 int cyperus_module_port_gc(lua_State* L);
@@ -128,5 +130,6 @@ int cyperus_module_port_index(lua_State* L);
 int cyperus_module_port_add_connection(lua_State *L);
 int _build_module_ports(lua_State* L, char *module_path);
 void register_cyperus_module_port_class(lua_State *L);
+
 
 #endif
