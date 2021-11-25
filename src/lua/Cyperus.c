@@ -61,37 +61,6 @@ int cyperus_index(lua_State* L) {
   return 0;
 }
 
-int dumpstack (lua_State *L) {
-  int i, count = 0;
-  
-  for(i=-1; i > -120; i--) {
-    printf("%d\t%s\t", i, luaL_typename(L,i));
-
-    printf("lua_type: %d\n", lua_type(L, i));
-    
-    switch (lua_type(L, i)) {
-      case LUA_TNUMBER:
-        printf("%g\n",lua_tonumber(L,i));
-        break;
-      case LUA_TSTRING:
-        printf("value: %s\n",lua_tostring(L,i));
-        break;
-      case LUA_TBOOLEAN:
-        printf("%s\n", (lua_toboolean(L, i) ? "true" : "false"));
-        break;
-      case LUA_TNIL:
-        printf("%s\n", "nil");
-        break;
-      default:
-        printf("%p\n",lua_topointer(L,i));
-        break;
-    }    
-  }
-
-  printf("userdata index!: %d\n", i);
-  return 0;
-}
-
 int cyperus_get_root(lua_State* L) {
   printf("Cyperus.c::cyperus_get_root()\n");
   libcyperus_lua_cyperus_t *state;
@@ -489,10 +458,64 @@ int cyperus_bus_port_index(lua_State* L) {
   return 0;
 }
 
+int dumpstack (lua_State *L) {
+  int i, count = 0;
+  
+  for(i=15; i > -120; i--) {
+    printf("%d\t%s\t", i, luaL_typename(L,i));
+
+    printf("lua_type: %d\n", lua_type(L, i));
+    
+    switch (lua_type(L, i)) {
+      case LUA_TNUMBER:
+        printf("%g\n",lua_tonumber(L,i));
+        break;
+      case LUA_TSTRING:
+        printf("value: %s\n",lua_tostring(L,i));
+        break;
+      case LUA_TBOOLEAN:
+        printf("%s\n", (lua_toboolean(L, i) ? "true" : "false"));
+        break;
+      case LUA_TNIL:
+        printf("%s\n", "nil");
+        break;
+      default:
+        printf("%p\n",lua_topointer(L,i));
+        break;
+    }    
+  }
+
+  printf("userdata index!: %d\n", i);
+  return 0;
+}
+
+int _cyperus_make_connection(lua_State *L) {
+  int error_code;
+  char *src_full_path;
+  char *dst_full_path;
+  
+  lua_pushstring(L, "full_path");
+  lua_gettable(L, 2);
+  src_full_path = (char *)lua_tostring(L, -1);
+  
+  lua_pushstring(L, "full_path");
+  lua_gettable(L, 1);
+  dst_full_path = (char *)lua_tostring(L, -1);
+
+  printf("Cyperus.c::_cyperus_make_connection(), src_full_path: %s\n", src_full_path);
+  printf("Cyperus.c::cyperus_make_connection(), dst_full_path: %s\n", dst_full_path);
+
+  error_code = libcyperus_add_connection(src_full_path,
+                                         dst_full_path);
+
+  return 0;
+}
+
 int cyperus_bus_port_add_connection(lua_State *L) {
   printf("Cyperus.c::cyperus_bus_port_add_onnection()\n");
-  
 
+  _cyperus_make_connection(L);
+  
   return 0;
 }
 
@@ -676,15 +699,6 @@ int cyperus_module_index(lua_State* L) {
   return 0;
 }
 
- int cyperus_module_connect(lua_State* L) {
-   printf("Cyperus.c::cyperus_module_connect()\n");
-
-   char *destination_port = (char *)luaL_checkstring(L, 2);
-   printf("Cyperus.c::cyperus_module_connect(), destination_port: %s\n", destination_port);
-      
-   return 0;
- } 
-
 void register_cyperus_module_class(lua_State* L) {
   int lib_id, meta_id;
 
@@ -741,6 +755,8 @@ int cyperus_module_port_index(lua_State* L) {
 
 int cyperus_module_port_add_connection(lua_State *L) {
   printf("Cyperus.c::cyperus_module_port_add_onnection()\n");
+
+  _cyperus_make_connection(L);
   
   return 0;
 }

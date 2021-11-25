@@ -47,13 +47,10 @@ print(dump(pulse.outs))
 print(pulse.ins)
 print(dump(pulse.ins))
 
-root_bus.outs[1].connect()
-perc.outs[1]:connect()
-
--- perc.outs[1].connect(moogff.ins[PARAM_MUL])
--- pulse.outs[1].connect(moogff.ins[1])
--- moogff.outs[1].connect(root_bus.outs[1])
--- root_bus.outs[1].connect(cyperus.outs[1])
+perc.outs[1]:connect(moogff.ins[PARAM_MUL])
+pulse.outs[1]:connect(moogff.ins[1])
+moogff.outs[1]:connect(root_bus.outs[1])
+-- root_bus.outs[1]:connect(cyperus.outs[1])
 
 -- perc.gate=-1.0
 
