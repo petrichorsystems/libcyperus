@@ -29,9 +29,6 @@ print(dump(root_bus.outs))
 print(root_bus.outs[1])
 print(root_bus.full_path)
 
-
-root_bus.ins[1]:connect()
-
 freq=440
 pw=0.5
 amp=0.5
@@ -40,12 +37,18 @@ gain=1
 release=0.9
 
 pulse = root_bus:add_module('audio/oscillator/pulse', freq, pw, 1.0, 0.0)
--- moogff = root_bus:add_module('audio/filter/moogff', cutoff, gain, 0.0, 1.0, 0.0)
--- perc = root_bus:add_module('motion/envelope/stdshape', 3, 0.01, release, 0.5, -4.0)
+moogff = root_bus:add_module('audio/filter/moogff', cutoff, gain, 0.0, 1.0, 0.0)
+perc = root_bus:add_module('motion/envelope/stdshape', 3, 0.01, release, 0.5, -4.0)
 
 PARAM_MUL=3
 
--- print(pulse.outs)
+print(pulse.outs)
+print(dump(pulse.outs))
+print(pulse.ins)
+print(dump(pulse.ins))
+
+root_bus.outs[1].connect()
+perc.outs[1]:connect()
 
 -- perc.outs[1].connect(moogff.ins[PARAM_MUL])
 -- pulse.outs[1].connect(moogff.ins[1])

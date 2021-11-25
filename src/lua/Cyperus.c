@@ -27,6 +27,7 @@ int luaopen_Cyperus(lua_State *L) {
   register_cyperus_bus_class(L);
   register_cyperus_bus_port_class(L);
   register_cyperus_module_class(L);
+  register_cyperus_module_port_class(L);
   return 1;
 }
 
@@ -644,7 +645,6 @@ static const luaL_Reg _module_meta[] = {
   { NULL, NULL }
 };
 static const luaL_Reg _module_methods[] = {
-  {"connect", cyperus_module_connect},
   { NULL, NULL }
 };
 
@@ -683,8 +683,68 @@ int cyperus_module_index(lua_State* L) {
    printf("Cyperus.c::cyperus_module_connect(), destination_port: %s\n", destination_port);
       
    return 0;
- }
- 
+ } 
+
+void register_cyperus_module_class(lua_State* L) {
+  int lib_id, meta_id;
+
+  /* newclass = {} */
+  lua_createtable(L, 0, 0);
+  lib_id = lua_gettop(L);
+
+  /* metatable = {} */
+  luaL_newmetatable(L, "Cyperus_Module");
+  meta_id = lua_gettop(L);
+  luaL_setfuncs(L, _module_meta, 0);
+
+  /* metatable.__index = _module_methods */
+  luaL_newlib(L, _module_methods);
+  lua_setfield(L, meta_id, "__index");  
+  
+  /* metatable.__module_metatable = _module_meta */
+  luaL_newlib(L, _module_meta);
+  lua_setfield(L, meta_id, "__module_metatable");
+
+  /* class.__module_metatable = metatable */
+  lua_setmetatable(L, lib_id);    
+  
+  /* _G["Cyperus_Module"] = newclass */
+  lua_setglobal(L, "Cyperus_Module");
+}
+
+/*
+ * cyperus module port object ************************************
+ */
+static const luaL_Reg _module_port_meta[] = {
+  {"__gc", cyperus_module_port_gc},
+  {"__index", cyperus_module_port_index},
+  {"__newindex", cyperus_module_port_newindex},
+  { NULL, NULL }
+};
+static const luaL_Reg _module_port_methods[] = {
+  {"connect", cyperus_module_port_add_connection},
+  { NULL, NULL }
+};
+
+int cyperus_module_port_gc(lua_State* L) {
+  printf("## __gc\n");
+  return 0;
+}
+int cyperus_module_port_newindex(lua_State* L) {
+  printf("## __newindex\n");
+  return 0;
+}
+int cyperus_module_port_index(lua_State* L) {
+  printf("## __index\n");
+  return 0;
+}
+
+int cyperus_module_port_add_connection(lua_State *L) {
+  printf("Cyperus.c::cyperus_module_port_add_onnection()\n");
+  
+  return 0;
+}
+
 int _build_module_ports(lua_State* L, char *module_path) {
   printf("Cyperus.c::cyperus_build_module_ports()\n");
   char **module_port_id_ins,
@@ -778,7 +838,7 @@ int _build_module_ports(lua_State* L, char *module_path) {
   return 1;
 }
 
-void register_cyperus_module_class(lua_State* L) {
+void register_cyperus_module_port_class(lua_State* L) {
   int lib_id, meta_id;
 
   /* newclass = {} */
@@ -786,21 +846,21 @@ void register_cyperus_module_class(lua_State* L) {
   lib_id = lua_gettop(L);
 
   /* metatable = {} */
-  luaL_newmetatable(L, "Cyperus_Module");
+  luaL_newmetatable(L, "Cyperus_Module_Port");
   meta_id = lua_gettop(L);
-  luaL_setfuncs(L, _module_meta, 0);
+  luaL_setfuncs(L, _module_port_meta, 0);
 
-  /* metatable.__index = _module_methods */
-  luaL_newlib(L, _module_methods);
+  /* metatable.__index = _module_port_methods */
+  luaL_newlib(L, _module_port_methods);
   lua_setfield(L, meta_id, "__index");  
   
-  /* metatable.__module_metatable = _module_meta */
-  luaL_newlib(L, _module_meta);
-  lua_setfield(L, meta_id, "__module_metatable");
+  /* metatable.__module_port_metatable = _module_port_meta */
+  luaL_newlib(L, _module_port_meta);
+  lua_setfield(L, meta_id, "__module_port_metatable");
 
-  /* class.__module_metatable = metatable */
+  /* class.__module_port_metatable = metatable */
   lua_setmetatable(L, lib_id);    
   
-  /* _G["Cyperus_Module"] = newclass */
-  lua_setglobal(L, "Cyperus_Module");
+  /* _G["Cyperus_Module_Port"] = newclass */
+  lua_setglobal(L, "Cyperus_Module_Port");
 }
