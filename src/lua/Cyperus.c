@@ -855,10 +855,59 @@ int cyperus_module_gc(lua_State* L) {
   return 0;
 }
 
+int _cyperus_module_get_new_params(lua_State *L,
+                                   int num_params_str,
+                                   char **params_str_name,
+                                   char **params_str,
+                                   int num_params_int,
+                                   char **params_int_name,
+                                   int *params_int,
+                                   int num_params_float,
+                                   char **params_float_name,
+                                   float *params_float) {
+  int idx_str, idx_int, idx_float;
+  
+  lua_pushnil(L);
+  while(lua_next(L, 1) != 0) {       
+    const char *key = lua_tostring(L, -2);
+       
+    if(strstr(key, "param_") != NULL) {
+      if(lua_isnumber(L, -1)) {
+        for(idx_int=0; idx_int<num_params_int; idx_int++) {
+          if(strcmp(params_int_name[idx_int], key) == 0) {
+            params_int[idx_int] = (int)lua_tonumber(L, -1);
+            break;
+          }
+        }
+
+        for(idx_float=0; idx_float<num_params_float; idx_float++) {
+          if(strcmp(params_float_name[idx_float], key) == 0) {
+            params_float[idx_float] = (float)lua_tonumber(L, -1);
+            break;
+          }
+        }
+      } else if(lua_isstring(L, -1)) {
+        for(idx_str=0; idx_str<num_params_str; idx_str++) {
+          if(strcmp(params_str_name[idx_str], key) == 0) {
+            params_str[idx_str] = (char *)lua_tostring(L, -1);
+            break;
+          }
+        }
+      }
+    }      
+    lua_pop(L, 1);
+  }
+
+  return 0;
+}
+
 int _cyperus_module_generic_index_func(lua_State *L) {
   printf("Cyperus.c::_cyperus_module_generic_index_func()\n");
 
   // vars
+
+  int found_param;
+  char *module_type, *full_path;
   
   char *param_name = (char *)luaL_checkstring(L, 2);
   float param_value = (float)luaL_checknumber(L, 3);
@@ -866,21 +915,71 @@ int _cyperus_module_generic_index_func(lua_State *L) {
    printf("Cyperus.c::_cyperus_module_generic_index_func(), param_name: %s\n", param_name);
    printf("Cyperus.c::_cyperus_module_generic_index_func(), param_value: %f\n", param_value);
 
+   found_param = 0;
    lua_pushnil(L);
    while(lua_next(L, 1) != 0) {
      const char *key = lua_tostring(L, -2);
-     if(strstr(key, param_name) != NULL) {
-       if(lua_isstring(L, -1))
-         printf("%s = %s\n", key, lua_tostring(L, -1));
-       else if(lua_isnumber(L, -1))
-         printf("%s = %f\n", key, lua_tonumber(L, -1));
-       else if(lua_istable(L, -1)) {
-         printf("%s\n", key);
+     if(strstr(key, "type") != NULL) {
+       if(lua_isstring(L, -1)) {
+         module_type = (char *)lua_tostring(L, -1);
+         printf("%s = %s\n", key, module_type);
        }
+     } else if(strstr(key, "full_path") != NULL) {
+       if(lua_isstring(L, -1)) {
+         full_path = (char *)lua_tostring(L, -1);
+         printf("%s = %s\n", key, full_path);
+       }
+     } else if(strstr(key, param_name) != NULL) {
+       printf("Cyperus.c::_cyperus_module_generic_index_func(), found_param: %d\n", found_param);
+       found_param = 1;
      }
      lua_pop(L, 1);
    }
-    
+
+   if(!found_param) {
+     printf("Cyperus.c::_cyperus_module_generic_index_func(), did not find param, exiting..\n");
+     exit(0);
+   }
+   
+   if(strcmp(module_type, "motion/envelope/stdshape") == 0) {
+     printf("Cyperus.c::_cyperus_module_generic_index_func(), module_type: %s\n", module_type);
+     printf("Cyperus.c::_cyperus_module_generic_index_func(), full_path: %s\n", full_path);
+
+     lua_pushnil(L);
+     while(lua_next(L, 1) != 0) {
+       const char *key = lua_tostring(L, -2);
+       if(strcmp(key, param_name) == 0) {
+         printf("Cyperus.c::_cyperus_module_generic_index_func(), found_param: %d\n", found_param);
+         if(strcmp(key, "param_release_node") == 0) {
+
+         } else if(strcmp(key, "param_loop_node") == 0) {
+
+         } else if(strcmp(key, "param_offset") == 0) {
+
+         } else if(strcmp(key, "param_gate") == 0) {
+
+         } else if(strcmp(key, "param_level_scale") == 0) {
+
+         } else if(strcmp(key, "param_level_bias") == 0) {
+
+         } else if(strcmp(key, "param_time_scale") == 0) {
+
+         } else {
+           printf("Cyperus.c::_cyperus_module_generic_index_func(), did not find param, exiting..\n");
+           exit(0);           
+         }
+
+         /*
+          * update param, populate param arrays, and call _cyperus_module_get_new_params()
+          */         
+         /*_cyperus_module_get-new_params(L,  */
+       }
+       lua_pop(L, 1);
+     }
+   } else {
+     printf("module type not found or some sick-ass error msg\n");
+   }
+   
   return 0;
 }
 
