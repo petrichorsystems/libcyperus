@@ -870,10 +870,15 @@ int _cyperus_module_table_param_try_update_int(lua_State* L, char *param_name, c
 int _cyperus_module_table_param_try_update_float(lua_State* L, char *param_name, char *param_name_update, float value, float value_update, int *param_updated) {
   if(strcmp(param_name, param_name_update) == 0) {
     if(value != value_update) {
+      printf("about to update\n");
       lua_pushstring(L, param_name);
+      printf("pushed param_name\n");
       lua_pushnumber(L, value_update);
+      printf("pushed value_update: %f\n", value_update);
       lua_rawset(L, -3);
-      *param_updated = 1;      
+      printf("updated table\n");      
+      *param_updated = 1;
+      printf("about to return\n");
     }
   }
   return 0;
@@ -896,23 +901,16 @@ int _cyperus_module_generic_index_func(lua_State *L) {
   int param_found, param_updated, error_code;
   char *module_type, *full_path;
 
-  int param_value_int;
-  float param_value_float;
+  int param_value_int = 0;
+  float param_value_float = 0.0f;
   char *param_value_str;
+  double param_value_double = 0.0;
 
   char *param_name;
   int param_name_len;
   char *param_name_suffix = (char *)luaL_checkstring(L, 2);
-  
-  if(lua_isstring(L, 3)) {
-    param_value_str = (char *)luaL_checkstring(L, 3);
-  } else if(lua_isnumber(L, 3)) {
-    if(lua_isinteger(L, 3)) {
-      param_value_int = (int)luaL_checknumber(L, 3);
-    } else {
-      param_value_float = (float)luaL_checknumber(L, 3);
-    }
-  }
+
+  printf("param_name_suffix: %s\n", param_name_suffix);
 
   param_name_len = strlen("param_") + strlen(param_name_suffix) + 1;
   param_name = malloc(sizeof(char) * (param_name_len));
@@ -954,36 +952,47 @@ int _cyperus_module_generic_index_func(lua_State *L) {
     float gate, level_scale, level_bias, time_scale;
 
     param_updated = 0;
-    
+
     lua_pushnil(L);
     while(lua_next(L, 1) != 0) {
       const char *key = lua_tostring(L, -2);
       if(strstr(key, "param_") != NULL) {
+        printf("key: %s\n", key);
         if(strcmp(key, "param_release_node") == 0) {
           release_node = (int)lua_tonumber(L, -1);
-          _cyperus_module_table_param_try_update_int(L, param_name, "param_release_node", release_node, (int)param_value_int, &param_updated);
+           param_value_double = (double)luaL_checknumber(L, 3);
+          _cyperus_module_table_param_try_update_int(L, param_name, "param_release_node", release_node, (int)param_value_double, &param_updated);
         } else if(strcmp(key, "param_loop_node") == 0) {
           loop_node = (int)lua_tonumber(L, -1);
-          _cyperus_module_table_param_try_update_int(L, param_name, "param_loop_node", loop_node, (int)param_value_int, &param_updated);           
+          param_value_double = (double)luaL_checknumber(L, 3);          
+          _cyperus_module_table_param_try_update_int(L, param_name, "param_loop_node", loop_node, (int)param_value_double, &param_updated);           
         } else if(strcmp(key, "param_offset") == 0) {
           offset = (int)lua_tonumber(L, -1);
-          _cyperus_module_table_param_try_update_int(L, param_name, "param_offset", offset, (int)param_value_int, &param_updated);
+          param_value_double = (double)luaL_checknumber(L, 3);          
+          _cyperus_module_table_param_try_update_int(L, param_name, "param_offset", offset, (int)param_value_double, &param_updated);
         } else if(strcmp(key, "param_gate") == 0) {
+          printf("start condition\n");
           gate = (float)lua_tonumber(L, -1);
-          _cyperus_module_table_param_try_update_float(L, param_name, "param_gate", gate, (float)param_value_float, &param_updated);
+          param_value_double = (double)luaL_checknumber(L, 3);          
+          printf("stored gate\n");
+          _cyperus_module_table_param_try_update_float(L, param_name, "param_gate", gate, (float)param_value_double, &param_updated);
         } else if(strcmp(key, "param_level_scale") == 0) {
           level_scale = (float)lua_tonumber(L, -1);
-          _cyperus_module_table_param_try_update_float(L, param_name, "param_level_scale", level_scale, (float)param_value_float, &param_updated); 
+           param_value_double = (double)luaL_checknumber(L, 3);          
+          _cyperus_module_table_param_try_update_float(L, param_name, "param_level_scale", level_scale, (float)param_value_double, &param_updated); 
         } else if(strcmp(key, "param_level_bias") == 0) {
           level_bias = (float)lua_tonumber(L, -1);
-          _cyperus_module_table_param_try_update_float(L, param_name, "param_level_bias", level_bias, (float)param_value_float, &param_updated);
+           param_value_double = (double)luaL_checknumber(L, 3);          
+          _cyperus_module_table_param_try_update_float(L, param_name, "param_level_bias", level_bias, (float)param_value_double, &param_updated);
         } else if(strcmp(key, "param_time_scale") == 0) {
           time_scale = (float)lua_tonumber(L, -1);
-          _cyperus_module_table_param_try_update_float(L, param_name, "param_time_scale", time_scale, (float)param_value_float, &param_updated);
+           param_value_double = (double)luaL_checknumber(L, 3);          
+          _cyperus_module_table_param_try_update_float(L, param_name, "param_time_scale", time_scale, (float)param_value_double, &param_updated);
         } else {
           printf("Cyperus.c::_cyperus_module_generic_index_func(), did not find param, exiting..\n");
           exit(0);           
         }
+        printf("end\n");
       }
       lua_pop(L, 1);
     }
