@@ -39,7 +39,7 @@ root_bus.outs[1]:connect(cyperus.outs[1])
 root_bus.outs[1]:connect(cyperus.outs[2])
 
 -- using a class member to provide a momentary gate to the percussive envelope
-perc.gate=-1.0
+perc.gate=1.0
 
 -- create osc handler with user-specified path to supply a momentary gate
 --   to the percussive envelope

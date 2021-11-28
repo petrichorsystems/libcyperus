@@ -511,6 +511,10 @@ int cyperus_bus_add_module(lua_State *L) {
     lua_pushnumber(L, -1);
     lua_rawset(L, -3);
 
+    lua_pushstring(L, "param_offset");
+    lua_pushnumber(L, 0);
+    lua_rawset(L, -3);
+    
     lua_pushstring(L, "param_gate");
     lua_pushnumber(L, -1.0f);
     lua_rawset(L, -3);
@@ -860,7 +864,7 @@ int _cyperus_module_table_param_try_update_int(lua_State* L, char *param_name, c
     if(value != value_update) {
       lua_pushstring(L, param_name);
       lua_pushnumber(L, value_update);
-      lua_rawset(L, -3);
+      lua_rawset(L, 1);
       *param_updated = 1;
     }
   }
@@ -870,15 +874,10 @@ int _cyperus_module_table_param_try_update_int(lua_State* L, char *param_name, c
 int _cyperus_module_table_param_try_update_float(lua_State* L, char *param_name, char *param_name_update, float value, float value_update, int *param_updated) {
   if(strcmp(param_name, param_name_update) == 0) {
     if(value != value_update) {
-      printf("about to update\n");
       lua_pushstring(L, param_name);
-      printf("pushed param_name\n");
       lua_pushnumber(L, value_update);
-      printf("pushed value_update: %f\n", value_update);
-      lua_rawset(L, -3);
-      printf("updated table\n");      
+      lua_rawset(L, 1);
       *param_updated = 1;
-      printf("about to return\n");
     }
   }
   return 0;
@@ -889,7 +888,7 @@ int _cyperus_module_table_param_try_update_string(lua_State *L, char *param_name
     if(strcmp(value, value_update) != 0) {
       lua_pushstring(L, param_name);
       lua_pushstring(L, value_update);
-      lua_rawset(L, -3);
+      lua_rawset(L, 1);
       *param_updated = 1;      
     }
   }
@@ -973,7 +972,7 @@ int _cyperus_module_generic_index_func(lua_State *L) {
         } else if(strcmp(key, "param_gate") == 0) {
           printf("start condition\n");
           gate = (float)lua_tonumber(L, -1);
-          param_value_double = (double)luaL_checknumber(L, 3);          
+          param_value_double = (double)luaL_checknumber(L, 3);
           printf("stored gate\n");
           _cyperus_module_table_param_try_update_float(L, param_name, "param_gate", gate, (float)param_value_double, &param_updated);
         } else if(strcmp(key, "param_level_scale") == 0) {
