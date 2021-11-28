@@ -73,7 +73,7 @@ extern int libcyperus_add_module_motion_envelope_stdshape(char *bus_path,
   return 0;
 } /* libcyperus_add_module_motion_envelope_stdshape */
 
-extern int libcyperus_edit_module_motion_envelope_stdshape(char *module_path,
+extern int libcyperus_edit_module_motion_envelope_segment(char *module_path,
                                                            int release_node,
                                                            int loop_node,
                                                            int offset,
@@ -81,9 +81,9 @@ extern int libcyperus_edit_module_motion_envelope_stdshape(char *module_path,
                                                            float level_scale,
                                                            float level_bias,
                                                            float time_scale) {
-  printf("libcyperus.c::libcyperus_edit_module_motion_envelope_stdshape()\n");
+  printf("libcyperus.c::libcyperus_edit_module_motion_envelope_segment()\n");
   request_t *request = request_register();  
-  printf("libcyperus.c::libcyperus_edit_module_motion_envelope_stdshape(), request->request_id: %s\n", request->request_id);
+  printf("libcyperus.c::libcyperus_edit_module_motion_envelope_segment(), request->request_id: %s\n", request->request_id);
   lo_send(lo_addr_send, "/cyperus/edit/module/motion/envelope/segment",
           "ssiiiffff",
           request->request_id,
@@ -98,4 +98,4 @@ extern int libcyperus_edit_module_motion_envelope_stdshape(char *module_path,
   request_wait(request);
   request_cleanup(request);
   return 0;
-} /* libcyperus_edit_module_motion_envelope_stdshape */
+} /* libcyperus_edit_module_motion_envelope_segment */

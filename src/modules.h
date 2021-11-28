@@ -55,12 +55,12 @@ extern int libcyperus_add_module_motion_envelope_stdshape(char *bus_path,
                                                           float curve,
                                                           char **module_id);
 
-extern int libcyperus_edit_module_motion_envelope_stdshape(char *module_path,
-                                                           int release_node,
-                                                           int loop_node,
-                                                           int offset,
-                                                           float gate,
-                                                           float level_scale,
-                                                           float level_bias,
-                                                           float time_scale);
+extern int libcyperus_edit_module_motion_envelope_segment(char *module_path,
+                                                          int release_node,
+                                                          int loop_node,
+                                                          int offset,
+                                                          float gate,
+                                                          float level_scale,
+                                                          float level_bias,
+                                                          float time_scale);
 #endif
