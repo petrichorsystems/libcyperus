@@ -32,10 +32,6 @@ Copyright 2021 murray foster */
 #include "parse.h"
 #include "modules.h"
 
-extern int libcyperus_setup(char *osc_port_in,
-                            char *osc_host_out,
-                            char *osc_port_out);
-
 extern int libcyperus_list_mains(char ***ins,
                                   int *num_ins,
                                   char ***outs,
@@ -73,4 +69,12 @@ extern int libcyperus_list_module_port(char *path,
 extern int libcyperus_add_connection(char *path_out,
                                       char *path_in);
 
+
+extern int libcyperus_add_module_osc_parameter_assignment(char *path,
+                                                          char *type_str,
+                                                          char ***module_port_id_ins,
+                                                          int *num_ins);
+extern int libcyperus_setup(char *osc_port_in,
+                            char *osc_host_out,
+                            char *osc_port_out);
 #endif

@@ -184,6 +184,29 @@ extern int libcyperus_add_connection(char *path_out,
   return 0;
 } /* libcyperus_add_connection */
 
+extern int libcyperus_add_module_osc_parameter_assignment(char *path,
+                                                          char *type_str,
+                                                          char ***module_port_id_ins,
+                                                          int *num_ins) {
+  printf("libcyperus.c::libcyperus_add_module_osc_parameter_assignment()\n");
+  request_t *request = request_register();
+  printf("libcyperus.c::libcyperus_add_module_osc_parameter_assignment(), request->request_id: %s\n", request->request_id);
+  printf("libcyperus.c::libcyperus_add_module_osc_parameter_assignment(), path: %s\n", path);
+
+  /* iterate over module_port_in's and build the osc message */
+  lo_message msg = lo_message_new();
+
+  lo_message_add_string(msg, request->request_id);
+  lo_message_add_string(msg, type_str);
+  for(int idx=0; idx<*num_ins; idx++) {
+    lo_message_add_string(msg, *(module_port_id_ins[idx]));
+  }
+  lo_send_message(lo_addr_send, "/cyperus/add/module/osc/parameter_assignment", msg);
+  request_wait(request);
+  request_cleanup(request);
+  lo_message_free(msg);
+  return 0;
+} /* libcyperus_add_module_osc_parameter_assignment */
 
 extern int libcyperus_setup(char *osc_port_in, char *osc_host_out, char *osc_port_out) {
   printf("libcyperus.c::libcyperus_setup()\n");
